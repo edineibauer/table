@@ -6,13 +6,13 @@
         this.$container = null;
         this.$prevEllipsis = null;
         this.$nextEllipsis = null;
+        this.currentPage = null;
         this.visiblePages = [];
     };
 
     MaterializePagination.prototype = {
         defaults: {
             align: 'left',
-            currentPage: 1,
             lastPage: 1,
             firstPage: 1,
             maxVisiblePages: 3,
@@ -42,8 +42,9 @@
             }
             this.config.firstPage = parseInt(this.config.firstPage);
             this.config.lastPage = parseInt(this.config.lastPage);
+            this.currentPage = this.config.firstPage - this.config.maxVisiblePages;
 
-            this.$container = $('<ul style="-webkit-touch-callout: none;-webkit-user-select: none;-khtml-user-select: none;-moz-user-select: none; -ms-user-select: none; user-select: none;">')
+            this.$container = $('<ul class="bar" style="-webkit-touch-callout: none;-webkit-user-select: none;-khtml-user-select: none;-moz-user-select: none; -ms-user-select: none; user-select: none;">')
                 .addClass('pagination')
                 .addClass(this.config.align + '-align');
 
@@ -73,24 +74,21 @@
         },
 
         requestPage: function (requestedPage, initing) {
-            if (!initing) {
-                if (requestedPage !== this.config.currentPage) {
-                    this.requestPageByNumber(requestedPage);
-                }
-                this.config.onClickCallback(this.config.currentPage);
-            } else {
-                this.requestPageByNumber(this.config.currentPage);
+            if (requestedPage !== this.currentPage) {
+                this.requestPageByNumber(requestedPage);
             }
+            if (!initing)
+                this.config.onClickCallback(this.currentPage);
             this.renderActivePage();
 
             if (this.config.useUrlParameter)
-                this.updateUrlParam(this.config.urlParameter, this.config.currentPage);
+                this.updateUrlParam(this.config.urlParameter, this.currentPage);
         },
 
         requestPageByNumber: function (requestedPage) {
             this.purgeVisiblePages();
-            this.config.currentPage = requestedPage;
-            for (var i = this.config.currentPage - this.config.maxVisiblePages; i < this.config.currentPage + this.config.maxVisiblePages + 1; i++) {
+            this.currentPage = requestedPage;
+            for (var i = this.currentPage - this.config.maxVisiblePages; i < this.currentPage + this.config.maxVisiblePages + 1; i++) {
                 this.visiblePages.push(this.insertNextPaginationComponent(i));
             }
         },
@@ -98,25 +96,25 @@
         renderActivePage: function () {
             this.renderEllipsis();
             this.$container.find('li.active').removeClass('active');
-            var currentPageComponent = $(this.$container.find('[data-page="' + this.config.currentPage + '"]')[0]);
+            var currentPageComponent = $(this.$container.find('[data-page="' + this.currentPage + '"]')[0]);
             currentPageComponent.addClass('active');
         },
 
         renderEllipsis: function () {
             if (this.$prevEllipsis.isHidden &&
-                this.config.currentPage > this.config.firstPage + this.config.maxVisiblePages + 1)
+                this.currentPage > this.config.firstPage + this.config.maxVisiblePages + 1)
                 this.$prevEllipsis.show();
 
             else if (!this.$prevEllipsis.isHidden &&
-                this.config.currentPage < this.config.firstPage + this.config.maxVisiblePages + 2)
+                this.currentPage < this.config.firstPage + this.config.maxVisiblePages + 2)
                 this.$prevEllipsis.hide();
 
             if (this.$nextEllipsis.isHidden &&
-                this.config.currentPage < this.config.lastPage - this.config.maxVisiblePages - 1)
+                this.currentPage < this.config.lastPage - this.config.maxVisiblePages - 1)
                 this.$nextEllipsis.show();
 
             else if (!this.$nextEllipsis.isHidden &&
-                this.config.currentPage > this.config.lastPage - this.config.maxVisiblePages - 2)
+                this.currentPage > this.config.lastPage - this.config.maxVisiblePages - 2)
                 this.$nextEllipsis.hide();
         },
 
@@ -143,12 +141,12 @@
 
             if (pageData === 'prev') {
                 requestedPage =
-                    this.config.currentPage === this.config.firstPage ?
-                        this.config.currentPage : this.config.currentPage - 1;
+                    this.currentPage === this.config.firstPage ?
+                        this.currentPage : this.currentPage - 1;
             } else if (pageData === 'next') {
                 requestedPage =
-                    this.config.currentPage === this.config.lastPage ?
-                        this.config.currentPage : this.config.currentPage + 1;
+                    this.currentPage === this.config.lastPage ?
+                        this.currentPage : this.currentPage + 1;
             } else if (!isNaN(pageData) &&
                 pageData >= this.config.firstPage &&
                 pageData <= this.config.lastPage) {
@@ -156,7 +154,6 @@
             } else {
                 requestedPage = null;
             }
-
             return requestedPage;
         },
 
@@ -203,15 +200,14 @@
             createPage: function (pageData) {
                 return $('<li>')
                     .html('<a>' + pageData + '</a>')
-                    .addClass('waves-effect')
+                    .addClass('hover-opacity-off opacity button')
                     .attr('data-page', pageData);
             },
             createChevron: function (type) {
                 var direction = type === 'next' ? 'right' : 'left';
 
                 var $icon = $('<i>')
-                    .addClass('waves-effect')
-                    .addClass('material-icons')
+                    .addClass('hover-opacity-off opacity material-icons pointer')
                     .text('chevron_' + direction);
 
                 return this.createPage(type).text('')

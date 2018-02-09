@@ -1,77 +1,47 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: nenab
- * Date: 29/09/2017
- * Time: 11:01
- */
-
-namespace TableList;
+namespace Table;
 
 use ConnCrud\Read;
-use ConnCrud\TableCrud;
-use Entity\Entity;
 use EntityForm\Metadados;
 use Helpers\Template;
 
 class Table
 {
-    private $entity;
-    private $link;
-    private $result;
-
-    public function __construct($entity = null)
+    /**
+     * @param string $entity
+     * @return string
+     */
+    public static function getShow(string $entity) :string
     {
-        if ($entity)
-            $this->setEntity($entity);
+        return self::getTable($entity);
     }
 
     /**
-     * @param mixed $entity
+     * @param string $entity
      */
-    public function setEntity($entity)
+    public static function show(string $entity)
     {
-        $this->entity = $entity;
+        echo self::getShow($entity);
     }
 
     /**
-     * @param mixed $link
-     */
-    public function setLink($link)
+     * @param string $entity
+     * @return string
+    */
+    private static function getTable(string $entity) :string
     {
-        $this->link = $link;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getShow()
-    {
-        return $this->start();
-    }
-
-    /**
-     * @return mixed
-     */
-    public function show()
-    {
-        echo $this->getShow();
-    }
-
-    private function start()
-    {
-        foreach (Metadados::getDicionario($this->entity) as $i => $data) {
+        foreach (Metadados::getDicionario($entity) as $i => $data) {
             if(in_array($data['format'], ["title", "date", "datetime"]))
                 $dados['header'][] = $data['nome'];
         }
-        $dados['entity'] = $this->entity;
+        $dados['entity'] = $entity;
 
         $read = new Read();
-        $read->exeRead(PRE . $this->entity);
+        $read->exeRead(PRE . $entity);
         $dados['total'] = $read->getRowCount();
 
-        $template = new Template("table-list");
+        $template = new Template("table");
         $template->setFolder(PATH_HOME . "tpl");
-        return $template->getShow("tableList", $dados);
+        return $template->getShow("table", $dados);
     }
 }

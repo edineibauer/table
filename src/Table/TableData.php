@@ -1,21 +1,16 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: nenab
- * Date: 06/10/2017
- * Time: 16:06
- */
 
-namespace TableList;
-
+namespace Table;
 
 use ConnCrud\Read;
-use Entity\Entity;
+use EntityForm\Metadados;
+use Helpers\Date;
+use Helpers\DateTime;
 use Helpers\Template;
 
-class ReadTable
+class TableData
 {
-    private $table;
+    private $entity;
     private $limit;
     private $pagina;
     private $offset;
@@ -24,22 +19,21 @@ class ReadTable
     private $dados;
     private $orderAsc = false;
     private $response = false;
-    private $pagination;
+    private $total;
     private $count = 0;
 
-    public function __construct($table)
+    public function __construct($entity)
     {
-        if ($table) {
-            $this->setTable($table);
-        }
+        if ($entity)
+            $this->setEntity($entity);
     }
 
     /**
-     * @param mixed $table
+     * @param mixed $entity
      */
-    public function setTable($table)
+    public function setEntity($entity)
     {
-        $this->table = $table;
+        $this->entity = $entity;
     }
 
     /**
@@ -119,9 +113,17 @@ class ReadTable
     /**
      * @return mixed
      */
+    public function getTotal()
+    {
+        return $this->total;
+    }
+
+    /**
+     * @return mixed
+     */
     public function getPagination()
     {
-        return $this->pagination;
+        return (int)ceil($this->total / $this->limit);
     }
 
     /**
@@ -134,61 +136,97 @@ class ReadTable
 
     private function start()
     {
-        if ($this->table && !$this->dados) {
+        if ($this->entity) {
 
-            $this->pagina = (!$this->pagina || $this->pagina < 2 ? 1 : $this->pagina);
+            $dicionario = Metadados::getDicionario($this->entity);
+
+            $this->pagina = $this->pagina < 2 ? 1 : $this->pagina;
             $this->offset = ($this->pagina * $this->limit) - $this->limit;
-            $where = $this->getWhere();
-            $order = $this->getOrder();
-            $this->pagination = $this->getMaximo($where);
+            $where = $this->getWhere($dicionario);
+            $this->getMaximo($where);
 
             $read = new Read();
-            if(!empty($where) || !empty($order)) {
-                $read->exeRead(PRE . $this->table, $where . $order);
-            } else {
-                $read->exeRead(PRE . $this->table);
-            }
-
+            $read->exeRead(PRE . $this->entity, $where . $this->getOrder());
             if ($read->getResult()) {
                 $this->count = $read->getRowCount();
                 $this->response = true;
 
-                $entity = new Entity($this->table);
-                $dados = $entity->getMetadados();
-                $dados['info']['table'] = $this->table;
-                $dados['values'] = $read->getResult();
+                foreach ($dicionario as $data) {
+                    if (in_array($data['format'], ['title', 'date', 'datetime']))
+                        $dados['names'][] = $data['column'];
+                }
 
-                $template = new Template('table-list');
-                $this->dados = $template->getShow("tableListBody", $dados);
+                $dados['entity'] = $this->entity;
+                $dados['values'] = $this->dataMask($read->getResult(), $dicionario);
+
+                $template = new Template('table');
+                $template->setFolder(PATH_HOME . "tpl");
+                $this->dados = $template->getShow("tableContent", $dados);
             }
 
         }
     }
 
-    function getMaximo($where): int
+    private function dataMask($data, $dic)
     {
-        $read = new Read();
-        $read->exeRead(PRE . $this->table, $where);
-        return (int)ceil($read->getRowCount() / $this->limit);
+        $datetime = new DateTime();
+        $date = new Date();
+        foreach ($dic as $di) {
+            if(in_array($di['format'], ['title', 'date', 'datetime'])) {
+                foreach ($data as $i => $datum) {
+                    foreach ($datum as $column => $value) {
+                        if ($column === $di['column']){
+                            switch ($di['format']) {
+                                case 'datetime':
+                                    $data[$i][$column] = $datetime->getDateTime($value, "H:i\h d/m/y");
+                                    break;
+                                case 'date':
+                                    $data[$i][$column] = $date->getDate($value, "d/m/y");
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return $data;
     }
 
-    private function getWhere()
+    public function getMaximo($where)
     {
-        $where = "";
+        $read = new Read();
+        $read->exeRead(PRE . $this->entity, $where);
+        $this->total = $read->getRowCount();
+    }
+
+    /**
+     * @param array $dicionario
+     * @return string
+    */
+    private function getWhere(array $dicionario) :string
+    {
+        $where = "WHERE id > 0";
         if ($this->filter) {
+
+            $info = Metadados::getInfo($this->entity);
+
+            foreach ($this->filter as $item => $value) {
+                $where .= " && {$dicionario[$info[$item]]['column']} LIKE '%{$value}%'";
+            }
+            /*
             foreach (array_map('trim', $this->filter) as $column => $value) {
-                if(!empty($value)) {
-                    $column = strip_tags($column);
-                    foreach ($this->checkOrValues($value, "&&") as $or) {
+                if (!empty($value)) {
+                    foreach (array_map("trim", explode("&&", $value)) as $or) {
 
                         $where .= (empty($where) ? "WHERE (" : ") && (");
                         $c = "";
-                        foreach ($this->checkOrValues($or, "||") as $and) {
+                        foreach (array_map("trim", explode("||", $or)) as $and) {
                             $comand = $this->checkCommandWhere($and);
                             $comand['value'] = strip_tags($comand['value']);
 
                             if (!empty($comand['value'])) {
-                                $where .= $c . "{$column} " . $this->commandWhere($comand);
+                                $where .= $c . strip_tags($column) . " " . $this->commandWhere($comand);
                                 $c = " || ";
                             }
                         }
@@ -196,13 +234,9 @@ class ReadTable
                 }
             }
             $where .= (!empty($where) ? ")" : "");
+            */
         }
         return $where;
-    }
-
-    private function checkOrValues($value, $co)
-    {
-        return array_map("trim", explode($co, $value));
     }
 
     private function commandWhere($comand)
@@ -274,7 +308,7 @@ class ReadTable
     private function getOrder()
     {
         $order = "";
-        $order .= ($this->order ? " ORDER BY {$this->order}" . ($this->orderAsc ? "" : " DESC") : "");
+        $order .= ($this->order ? " ORDER BY {$this->order}" . ($this->orderAsc ? "" : " DESC") : "ORDER BY id DESC");
         $order .= ($this->limit || $this->offset ? " LIMIT " . ($this->offset ? "{$this->offset}, " : "") . ($this->limit ?? 1000) : "");
 
         return $order;
