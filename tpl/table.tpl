@@ -41,7 +41,7 @@
                     <span>{$item}</span>
                 </th>
             {/foreach}
-            <th class="right-align" style="padding-right: 20px;">Ações</th>
+            <th class="align-right" style="padding-right: 20px;">Ações</th>
         </tr>
     </table>
 
