@@ -160,7 +160,6 @@ class TableData
                 $dados['values'] = $this->dataMask($read->getResult(), $dicionario);
 
                 $template = new Template('table');
-                $template->setFolder(PATH_HOME . "tpl");
                 $this->dados = $template->getShow("tableContent", $dados);
             }
 

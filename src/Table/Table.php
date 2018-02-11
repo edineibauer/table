@@ -41,7 +41,6 @@ class Table
         $dados['total'] = $read->getRowCount();
 
         $template = new Template("table");
-        $template->setFolder(PATH_HOME . "tpl");
         return $template->getShow("table", $dados);
     }
 }
