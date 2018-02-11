@@ -11,12 +11,12 @@
         </button>
 
         <label class="right">
-            <input type="text" class="font-medium table-search" id="search-{$entity}" data-entity="{$entity}"
-                   placeholder="busca..." style="margin-bottom: 0"/>
+            <input type="text" class="table-search" id="search-{$entity}" data-entity="{$entity}"
+                   placeholder="busca..." style="margin-bottom: 0;font-size:14px"/>
         </label>
 
         <select class="right tableLimit" id="limit-{$entity}" data-entity="{$entity}"
-                style="width: auto;margin-bottom: 0;margin-top: -5px;">
+                style="width: auto;margin-bottom: 0;margin-top: -5.5px;">
             <option value="15">15</option>
             <option value="25">25</option>
             <option value="50">50</option>
