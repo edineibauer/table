@@ -49,11 +49,6 @@
 
     <input type="hidden" class="table-pagina" value="1" data-entity="{$entity}" id="table-pagina-{$entity}"/>
 
-    {if !$dev}
-        <script src="{$home}vendor/conn/table/assets/table.min.js" defer></script>
-        <script src="{$home}vendor/conn/table/assets/pagination.min.js" defer></script>
-    {else}
-        <script src="{$home}assets/table.js" defer></script>
-        <script src="{$home}assets/pagination.js" defer></script>
-    {/if}
+    <script src="{$home}vendor/conn/table/assets/table.min.js" defer></script>
+    <script src="{$home}vendor/conn/table/assets/pagination.min.js" defer></script>
 </div>
