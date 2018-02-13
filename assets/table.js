@@ -1,8 +1,6 @@
 if (typeof tableNovo !== 'function') {
     var loadTime = searchTime = false;
 
-    // $("head").append("<link rel='stylesheet' href='" + HOME + "vendor/conn/table/assets/table.min.css' />");
-
     function tableNovo(entity) {
         $("#btn-table-" + entity).panel(themeWindow("Novo " + entity, {
             lib: 'form-crud',
