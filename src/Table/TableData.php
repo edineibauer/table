@@ -184,7 +184,11 @@ class TableData
                                 case 'date':
                                     $data[$i][$column] = $date->getDate($value, "d/m/y");
                                     break;
+                                case 'source':
+                                    $data[$i][$column] = $this->getSource($value);
+                                    break;
                             }
+                            break;
                         }
                     }
                 }
@@ -192,6 +196,19 @@ class TableData
         }
 
         return $data;
+    }
+
+    private function getSource($value)
+    {
+        $value = json_decode($value, true);
+
+        switch ($value[0]['type']) {
+            case 'image/jpeg':
+                return "<img src='{$value[0]['url']}' title='{$value[0]['name']}' height='30' style='height: 30px;width: auto' />";
+                break;
+        }
+
+        return "";
     }
 
     public function getMaximo($where)
@@ -204,7 +221,7 @@ class TableData
     /**
      * @param array $dicionario
      * @return string
-    */
+     */
     private function getWhere(array $dicionario) :string
     {
         $where = "WHERE id > 0";
