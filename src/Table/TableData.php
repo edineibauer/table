@@ -139,6 +139,7 @@ class TableData
         if ($this->entity) {
 
             $dicionario = Metadados::getDicionario($this->entity);
+            $relevants = Metadados::getRelevantAll($this->entity);
 
             $this->pagina = $this->pagina < 2 ? 1 : $this->pagina;
             $this->offset = ($this->pagina * $this->limit) - $this->limit;
@@ -151,13 +152,14 @@ class TableData
                 $this->count = $read->getRowCount();
                 $this->response = true;
 
+                $dados['names'] = [];
                 foreach ($dicionario as $data) {
-                    if (in_array($data['format'], ['title', 'date', 'datetime']))
+                    if (in_array($data['format'], $relevants) && count($dados['names']) < 6)
                         $dados['names'][] = $data['column'];
                 }
 
                 $dados['entity'] = $this->entity;
-                $dados['values'] = $this->dataMask($read->getResult(), $dicionario);
+                $dados['values'] = $this->dataMask($read->getResult(), $dicionario, $relevants);
 
                 $template = new Template('table');
                 $this->dados = $template->getShow("tableContent", $dados);
@@ -166,12 +168,12 @@ class TableData
         }
     }
 
-    private function dataMask($data, $dic)
+    private function dataMask($data, $dic, array $relevants)
     {
         $datetime = new DateTime();
         $date = new Date();
         foreach ($dic as $di) {
-            if(in_array($di['format'], ['title', 'date', 'datetime'])) {
+            if(in_array($di['format'], $relevants)) {
                 foreach ($data as $i => $datum) {
                     foreach ($datum as $column => $value) {
                         if ($column === $di['column']){
@@ -209,9 +211,10 @@ class TableData
         if ($this->filter) {
 
             $info = Metadados::getInfo($this->entity);
+            $relevant = Metadados::getRelevant($this->entity);
 
             foreach ($this->filter as $item => $value) {
-                $where .= " && {$dicionario[$info[$item]]['column']} LIKE '%{$value}%'";
+                $where .= " && {$dicionario[$item === "title" ? $relevant : $info[$item]]['column']} LIKE '%{$value}%'";
             }
             /*
             foreach (array_map('trim', $this->filter) as $column => $value) {

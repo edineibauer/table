@@ -6,7 +6,7 @@
         <span class="padding-medium color-text-grey left">
             <b id="table-total-{$entity}">{$total}</b> registros</span>
 
-        <button class="btb right color-teal" id="btn-table-{$entity}" onclick="tableNovo('{$entity}')">
+        <button class="btb right color-teal hover-shadow opacity hover-opacity-off" id="btn-table-{$entity}" onclick="tableNovo('{$entity}')">
             <i class="material-icons left">add</i><span class="left">Novo</span>
         </button>
 
