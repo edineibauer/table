@@ -138,7 +138,7 @@ class TableData
     {
         if ($this->entity) {
 
-            $dicionario = Metadados::getDicionario($this->entity);
+            $dicionario = Metadados::getDicionario($this->entity, true);
             $relevants = Metadados::getRelevantAll($this->entity);
 
             $this->pagina = $this->pagina < 2 ? 1 : $this->pagina;
