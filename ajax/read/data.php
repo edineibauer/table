@@ -14,6 +14,7 @@ $read->setOrder($order);
 $read->setOrderAsc($orderAsc);
 $read->setFilter($filter);
 
+$data['data'] = [];
 $data['data']['content'] = $read->getDados();
 $data['data']['pagination'] = $read->getPagination();
 $data['data']['total'] = $read->getTotal();

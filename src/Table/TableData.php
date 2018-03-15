@@ -207,6 +207,8 @@ class TableData
                 case 'image/jpeg':
                     return "<img src='{$value[0]['url']}' title='{$value[0]['name']}' height='30' style='height: 30px;width: auto' />";
                     break;
+                default:
+                    return "";
             }
         }
 
