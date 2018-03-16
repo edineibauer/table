@@ -189,7 +189,7 @@ class TableData
                                     break;
                                 case 'status':
                                 case 'boolean':
-                                    $data[$i][$column] = $value ? "<span class='color-green'>ON</span>" : "<span class='color-orange'>OFF</span>";
+                                    $data[$i][$column] = $value ? "<span class='color-green tag'>ON</span>" : "<span class='color-orange tag color-text-white'>OFF</span>";
                                     break;
                             }
                             break;
