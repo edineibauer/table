@@ -2,7 +2,7 @@ if (typeof tableNovo !== 'function') {
     var loadTime = searchTime = false;
 
     function tableNovo(entity) {
-        $("#btn-table-" + entity).panel(themeWindow("Novo " + entity, {
+        $("#btn-table-" + entity).panel(themeWindow("<i class='statusPanel left' title='sem mudanças'></i><span class='left'>Novo " + ucFirst(entity) + "</span>", {
             lib: 'form-crud',
             file: 'read/form',
             entity: entity
@@ -65,7 +65,7 @@ if (typeof tableNovo !== 'function') {
     }
 
     function editEntityDataId(entity, id) {
-        $("#edit-" + entity + "-" + id).panel(themeWindow("Editar " + entity, {
+        $("#edit-" + entity + "-" + id).panel(themeWindow("<i class='statusPanel left' title='sem mudanças'></i><span class='left'>Editar " + ucFirst(entity) + "</span>", {
             lib: 'form-crud',
             file: 'read/form',
             entity: entity,
