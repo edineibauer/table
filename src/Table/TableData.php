@@ -187,6 +187,10 @@ class TableData
                                 case 'source':
                                     $data[$i][$column] = $this->getSource($value);
                                     break;
+                                case 'status':
+                                case 'boolean':
+                                    $data[$i][$column] = $value ? "<span class='color-green'>ON</span>" : "<span class='color-orange'>OFF</span>";
+                                    break;
                             }
                             break;
                         }
