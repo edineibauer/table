@@ -154,7 +154,7 @@ class TableData
 
                 $dados['names'] = [];
                 foreach ($dicionario as $data) {
-                    if (in_array($data['format'], $relevants) && count($dados['names']) < 6)
+                    if (in_array($data['format'], $relevants) && $data['form'] && count($dados['names']) < 6)
                         $dados['names'][] = $data['column'];
                 }
 

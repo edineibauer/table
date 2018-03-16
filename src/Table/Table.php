@@ -34,7 +34,8 @@ class Table
         $dados['header'] = [];
         $relevants = Metadados::getRelevantAll($entity);
         foreach (Metadados::getDicionario($entity, true) as $i => $data) {
-            if (in_array($data['format'], $relevants) && count($dados['header']) < 6) {
+            if (in_array($data['format'], $relevants) && $data['form'] && count($dados['header']) < 6) {
+
                 $dados['header'][] = $data['nome'];
                 $dados['meta'][] = $data['format'];
             }
