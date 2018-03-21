@@ -239,7 +239,7 @@ class TableData
             $relevant = Metadados::getRelevant($this->entity);
 
             foreach ($this->filter as $item => $value) {
-                $where .= " && {$dicionario[$item === "title" ? $relevant : $info[$item]]['column']} LIKE '%{$value}%'";
+                $where .= " && ({$dicionario[$item === "title" ? $relevant : $info[$item]]['column']} LIKE '%{$value}%' || id LIKE '%{$value}%')";
             }
             /*
             foreach (array_map('trim', $this->filter) as $column => $value) {
