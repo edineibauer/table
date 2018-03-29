@@ -4,7 +4,7 @@ if (typeof tableNovo !== 'function') {
     function tableNovo(entity) {
         $("#btn-table-" + entity).panel(themeWindow("<i class='statusPanel left' title='sem mudanças'></i><span class='left'>Novo " + ucFirst(entity) + "</span>", {
             lib: 'form-crud',
-            file: 'read/form',
+            file: 'api',
             entity: entity
         }, function () {
             loadingTable(entity);
@@ -67,7 +67,7 @@ if (typeof tableNovo !== 'function') {
     function editEntityDataId(entity, id) {
         $("#edit-" + entity + "-" + id).panel(themeWindow("<i class='statusPanel left' title='sem mudanças'></i><span class='left'>Editar " + ucFirst(entity) + "</span>", {
             lib: 'form-crud',
-            file: 'read/form',
+            file: 'api',
             entity: entity,
             id: id
         }, function () {
@@ -77,7 +77,7 @@ if (typeof tableNovo !== 'function') {
     }
 
     function deleteEntityDataId(entity, id) {
-        post('table', 'delete/data', {entity: entity, id: id}, function () {
+        post('table', 'delete/data', {entity: entity, id: id}, function (g) {
             clearInterval(loadTime);
             $("#row-" + entity + "-" + id).remove();
         });
@@ -177,124 +177,3 @@ if (typeof tableNovo !== 'function') {
 $(function () {
     startTable();
 });
-
-/*
-
-(function ($) {
-    $.fn.editField = function (options) {
-        var defaults = {
-            icon: this.attr("data-icon") || "edit",
-            id: this.attr("data-id") || "null",
-            content: this.attr("data-content") || this.html(),
-            table: this.attr("data-table") || "null",
-            callback: this.attr("data-callback") || "null",
-            parameters: this.attr("data-parameters") || "null",
-            isOpen: false
-        };
-
-        $.extend(defaults, options);
-
-        if (defaults.callback === "null") {
-            alert("data-callback ausente na aplicação do plugin editField. Favor informar para funcinamento do plugin.");
-        } else {
-
-            var $icon = $("<i class='material-icons hide editFieldIcon'>" + defaults.icon + "</i>").appendTo(this);
-
-            this.off("mouseover focus").on("mouseover focus", function () {
-                $icon.removeClass("hide");
-            }).off("mouseleave").on("mouseleave", function () {
-                $icon.addClass("hide");
-            });
-
-            $icon.off("click").on("click", function () {
-                editField.open(this);
-            });
-
-            var editField = {
-                open: function ($this) {
-                    var valor = $this.html();
-                    $this.html("<input type='text' style='height: 35px; width: " + $this.width() + "px' rel='" + defaults.id + "' class='inputEditableTableList' placeholder='" + defaults.content + "' id='searchTableList-" + defaults.id + "' />");
-                },
-                close: function () {
-                    var $element = $("#editableField-" + defaults.id);
-                    $element.find(".iconEditableField").addClass("hoverI");
-                    $element.find(".inputEditableTableList").remove();
-                    $element.find(".textEditableField").css("display", "inline");
-                    defaults.isOpen = false;
-                },
-                search: function () {
-                    var $element = $("#editableField-" + defaults.id);
-                    $element.find(".inputEditableTableList").focus();
-                    $("#offset-" + defaults.table).val(1);
-                    window[defaults.callback](defaults.parameters);
-                }
-            };
-
-            this.on("click", ".iconEditableField", function () {
-                if (!defaults.isOpen) {
-                    editField.open();
-                    defaults.isOpen = true;
-                } else {
-                    editField.search();
-                }
-            });
-
-            this.on("keyup", ".inputEditableTableList", function (event) {
-                if (event.which === 13) {
-                    editField.search();
-                }
-            });
-
-            this.on("blur", ".inputEditableTableList", function () {
-                if ($(this).val().length < 1) {
-                    setTimeout(function () {
-                        editField.close();
-                    }, 100);
-                }
-            });
-        }
-        return this;
-    };
-
-    $.fn.orderBy = function (options) {
-        var defaults = {
-            id: this.attr("data-id") || "null",
-            table: this.attr("data-table") || "null",
-            callback: this.attr("data-callback") || "null",
-            parameters: this.attr("data-parameters") || "null"
-        };
-
-        $.extend(defaults, options);
-
-        if(defaults.callback === "null") {
-            alert("método orderBy necessita de 'data-callback' para chamar uma função resultante. Favor corrigir isto para ordenação funcionar.");
-        } else {
-            if(defaults.parameters !== "null" && defaults.parameters.match(/,/i)) {
-                defaults.parameters = defaults.parameters.split(',').map(function(n){return n.toString().trim()});
-            }
-
-            this.css("position", "relative");
-            this.prepend("<i class='material-icons iconArrowTableList' id='iconArrowTableList-" + defaults.id + "'>arrow_drop_down</i>");
-
-            var orderBy = {
-                change: function () {
-                    if ($("#order-" + defaults.table).val() === defaults.id) {
-                        $("#orderAsc-" + defaults.table).val($("#orderAsc-" + defaults.table).val() === "false" ? "true" : "false");
-                    } else {
-                        $("#order-" + defaults.table).val(defaults.id);
-                        $("#orderAsc-" + defaults.table).val(true);
-                    }
-                    $("#iconArrowTableList-" + defaults.id).html($("#orderAsc-" + defaults.table).val() === "false" ? "arrow_drop_down" : "arrow_drop_up");
-
-                    window[defaults.callback](defaults.parameters);
-                }
-            };
-
-            this.on("click", ".iconArrowTableList", function () {
-                orderBy.change();
-            });
-        }
-
-        return this;
-    };
-}(jQuery));*/

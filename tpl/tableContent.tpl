@@ -11,7 +11,7 @@
             </td>
         {/foreach}
 
-        <td class="tableActions">
+        <td class="tableActions{if $dado.permission == false} disabled" title="Sem Permissão{/if}">
             <button id="del-{$entity}-{$dado['id']}" onclick="deleteEntityData('{$entity}', {$dado['id']})"
                     class="right btn-floating color-white color-hover-text-red hover-shadow opacity hover-opacity-off">
                 <i class="material-icons">delete</i>

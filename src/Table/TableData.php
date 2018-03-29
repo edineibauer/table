@@ -3,6 +3,7 @@
 namespace Table;
 
 use ConnCrud\Read;
+use Entity\Entity;
 use EntityForm\Metadados;
 use Helpers\Date;
 use Helpers\DateTime;
@@ -172,11 +173,16 @@ class TableData
     {
         $datetime = new DateTime();
         $date = new Date();
+        $info = Metadados::getInfo($this->entity);
+        $filterPermission = !empty($info['publisher']) || $this->entity === "login";
         foreach ($dic as $di) {
-            if(in_array($di['format'], $relevants)) {
+            if (in_array($di['format'], $relevants)) {
                 foreach ($data as $i => $datum) {
+
+                    $data[$i]['permission'] = $filterPermission ? $this->checkPermissionEdit($datum, $dic, $info) : true;
+
                     foreach ($datum as $column => $value) {
-                        if ($column === $di['column']){
+                        if ($column === $di['column']) {
                             switch ($di['format']) {
                                 case 'datetime':
                                     $data[$i][$column] = $datetime->getDateTime($value, "H:i\h d/m/y");
@@ -202,9 +208,26 @@ class TableData
         return $data;
     }
 
+    private function checkPermissionEdit($datum, $dic, $info)
+    {
+        if ($this->entity !== "login") {
+            if ($_SESSION['userlogin']['id'] == $datum[$dic[$info['publisher']]['column']])
+                return true;
+
+            $read = new Read();
+            $read->exeRead(PRE . "login", "WHERE id = :idl", "idl={$datum[$dic[$info['publisher']]['column']]}");
+            if ($read->getResult())
+                $publisher = $read->getResult()[0];
+        } else {
+            $publisher = $datum;
+        }
+
+        return (isset($publisher) && ($_SESSION['userlogin']['setor'] < $publisher['setor'] || $_SESSION['userlogin']['id'] === $publisher['id'] || ($_SESSION['userlogin']['setor'] == $publisher['setor'] && $_SESSION['userlogin']['nivel'] < $publisher['nivel'])));
+    }
+
     private function getSource($value)
     {
-        if(!empty($value)) {
+        if (!empty($value)) {
             $value = json_decode($value, true);
 
             switch ($value[0]['type']) {
@@ -230,7 +253,7 @@ class TableData
      * @param array $dicionario
      * @return string
      */
-    private function getWhere(array $dicionario) :string
+    private function getWhere(array $dicionario): string
     {
         $where = "WHERE id > 0";
         if ($this->filter) {
