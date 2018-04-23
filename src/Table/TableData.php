@@ -4,6 +4,7 @@ namespace Table;
 
 use ConnCrud\Read;
 use Entity\Entity;
+use EntityForm\Dicionario;
 use EntityForm\Metadados;
 use Helpers\Date;
 use Helpers\DateTime;
@@ -139,13 +140,14 @@ class TableData
     {
         if ($this->entity) {
 
+            $d = new Dicionario($this->entity);
             $dicionario = Metadados::getDicionario($this->entity, true);
             $relevants = Metadados::getRelevantAll($this->entity);
 
             $this->pagina = $this->pagina < 2 ? 1 : $this->pagina;
             $this->offset = ($this->pagina * $this->limit) - $this->limit;
-            $where = $this->getWhere($dicionario);
-            $this->getMaximo($where);
+            $where = $this->getWhere($d);
+            $this->total = $this->getMaximo($where);
 
             $read = new Read();
             $read->exeRead(PRE . $this->entity, $where . $this->getOrder());
@@ -174,12 +176,11 @@ class TableData
         $datetime = new DateTime();
         $date = new Date();
         $info = Metadados::getInfo($this->entity);
-        $filterPermission = !empty($info['publisher']) || $this->entity === "login";
         foreach ($dic as $di) {
             if (in_array($di['format'], $relevants)) {
                 foreach ($data as $i => $datum) {
 
-                    $data[$i]['permission'] = $filterPermission ? $this->checkPermissionEdit($datum, $dic, $info) : true;
+                    $data[$i]['permission'] = Entity::checkPermission($this->entity, $datum['id']);
 
                     foreach ($datum as $column => $value) {
                         if ($column === $di['column']) {
@@ -208,23 +209,6 @@ class TableData
         return $data;
     }
 
-    private function checkPermissionEdit($datum, $dic, $info)
-    {
-        if ($this->entity !== "login") {
-            if ($_SESSION['userlogin']['id'] == $datum[$dic[$info['publisher']]['column']])
-                return true;
-
-            $read = new Read();
-            $read->exeRead(PRE . "login", "WHERE id = :idl", "idl={$datum[$dic[$info['publisher']]['column']]}");
-            if ($read->getResult())
-                $publisher = $read->getResult()[0];
-        } else {
-            $publisher = $datum;
-        }
-
-        return (isset($publisher) && ($_SESSION['userlogin']['setor'] < $publisher['setor'] || $_SESSION['userlogin']['id'] === $publisher['id'] || ($_SESSION['userlogin']['setor'] == $publisher['setor'] && $_SESSION['userlogin']['nivel'] < $publisher['nivel'])));
-    }
-
     private function getSource($value)
     {
         if (!empty($value)) {
@@ -242,28 +226,28 @@ class TableData
         return "";
     }
 
-    public function getMaximo($where)
+    /**
+     * @param string
+     * @return int
+     */
+    public function getMaximo(string $where): int
     {
         $read = new Read();
         $read->exeRead(PRE . $this->entity, $where);
-        $this->total = $read->getRowCount();
+        return (int)$read->getRowCount();
     }
 
     /**
-     * @param array $dicionario
+     * @param Dicionario $d
      * @return string
      */
-    private function getWhere(array $dicionario): string
+    private function getWhere(Dicionario $d): string
     {
         $where = "WHERE id > 0";
         if ($this->filter) {
+            foreach ($this->filter as $item => $value)
+                $where .= " && (" . ($item === "title" ? $d->getRelevant()->getColumn() : $d->search($item)->getColumn()) . " LIKE '%{$value}%' || id LIKE '%{$value}%')";
 
-            $info = Metadados::getInfo($this->entity);
-            $relevant = Metadados::getRelevant($this->entity);
-
-            foreach ($this->filter as $item => $value) {
-                $where .= " && ({$dicionario[$item === "title" ? $relevant : $info[$item]]['column']} LIKE '%{$value}%' || id LIKE '%{$value}%')";
-            }
             /*
             foreach (array_map('trim', $this->filter) as $column => $value) {
                 if (!empty($value)) {
