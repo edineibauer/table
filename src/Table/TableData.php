@@ -184,20 +184,22 @@ class TableData
 
                     foreach ($datum as $column => $value) {
                         if ($column === $di['column']) {
-                            switch ($di['format']) {
-                                case 'datetime':
-                                    $data[$i][$column] = $datetime->getDateTime($value, "H:i\h d/m/y");
-                                    break;
-                                case 'date':
-                                    $data[$i][$column] = $date->getDate($value, "d/m/y");
-                                    break;
-                                case 'source':
-                                    $data[$i][$column] = $this->getSource($value);
-                                    break;
-                                case 'status':
-                                case 'boolean':
-                                    $data[$i][$column] = $value ? "<span class='color-green tag'>ON</span>" : "<span class='color-orange tag color-text-white'>OFF</span>";
-                                    break;
+                            if(!empty($value)) {
+                                switch ($di['format']) {
+                                    case 'datetime':
+                                        $data[$i][$column] = $datetime->getDateTime($value, "H:i\h d/m/y");
+                                        break;
+                                    case 'date':
+                                        $data[$i][$column] = $date->getDate($value, "d/m/y");
+                                        break;
+                                    case 'source':
+                                        $data[$i][$column] = $this->getSource($value);
+                                        break;
+                                    case 'status':
+                                    case 'boolean':
+                                        $data[$i][$column] = $value ? "<span class='color-green tag'>ON</span>" : "<span class='color-orange tag color-text-white'>OFF</span>";
+                                        break;
+                                }
                             }
                             break;
                         }
