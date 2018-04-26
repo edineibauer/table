@@ -175,7 +175,6 @@ class TableData
     {
         $datetime = new DateTime();
         $date = new Date();
-        $info = Metadados::getInfo($this->entity);
         foreach ($dic as $di) {
             if (in_array($di['format'], $relevants)) {
                 foreach ($data as $i => $datum) {
@@ -274,7 +273,7 @@ class TableData
         }
         return $where;
     }
-
+/*
     private function commandWhere($comand)
     {
         switch ($comand['comando']) {
@@ -339,7 +338,7 @@ class TableData
         }
 
         return array("negado" => $negado, "comando" => $comand, "value" => $value);
-    }
+    }*/
 
     private function getOrder()
     {
