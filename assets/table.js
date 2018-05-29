@@ -2,15 +2,17 @@ if (typeof tableNovo !== 'function') {
     var loadTime = searchTime = false;
 
     function tableNovo(entity) {
-        $("#btn-table-" + entity).panel(themeWindow("<i class='statusPanel left' title='sem mudanças'></i><span class='left'>Novo " + ucFirst(entity) + "</span>", {
-            lib: 'form-crud',
-            file: 'api',
-            entity: entity
-        }, function () {
-            loadingTable(entity);
-            resetPagination(entity);
-            readTable(entity);
-        }));
+        $("#btn-table-" + entity).panel(
+            themeDashboard("<i class='statusPanel left' title='sem mudanças'></i><span class='left'>Novo " + ucFirst(entity) + "</span>", {
+                lib: 'form-crud',
+                file: 'api',
+                entity: entity
+            }, function () {
+                loadingTable(entity);
+                resetPagination(entity);
+                readTable(entity);
+            })
+        );
     }
 
     function editEntityData(entity, id) {
@@ -65,15 +67,17 @@ if (typeof tableNovo !== 'function') {
     }
 
     function editEntityDataId(entity, id) {
-        $("#edit-" + entity + "-" + id).panel(themeWindow("<i class='statusPanel left' title='sem mudanças'></i><span class='left'>Editar " + ucFirst(entity) + "</span>", {
-            lib: 'form-crud',
-            file: 'api',
-            entity: entity,
-            id: id
-        }, function () {
-            loadingTable(entity);
-            readTable(entity);
-        }));
+        $("#edit-" + entity + "-" + id).panel(
+            themeDashboard("<i class='statusPanel left' title='sem mudanças'></i><span class='left'>Editar " + ucFirst(entity) + "</span>", {
+                lib: 'form-crud',
+                file: 'api',
+                entity: entity,
+                id: id
+            }, function () {
+                loadingTable(entity);
+                readTable(entity);
+            })
+        );
     }
 
     function deleteEntityDataId(entity, id) {
