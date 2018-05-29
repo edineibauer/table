@@ -15,8 +15,8 @@
                    placeholder="busca..." style="margin-bottom: 0;font-size:14px"/>
         </label>
 
-        <select class="right tableLimit" id="limit-{$entity}" data-entity="{$entity}"
-                style="width: auto;margin-bottom: 0;margin-top: -4.5px;">
+        <select class="right tableLimit font-small" id="limit-{$entity}" data-entity="{$entity}"
+                style="width: auto;margin-bottom: 0;margin-top: -2.5px;">
             <option value="15">15</option>
             <option value="25">25</option>
             <option value="50">50</option>
@@ -26,7 +26,7 @@
             <option value="1000">1000</option>
         </select>
 
-        <span class="padding-medium color-text-grey right table-cont-pag" id="table-cont-pag-{$entity}"></span>
+        <span class="padding-small color-text-grey right table-cont-pag" style="margin-top: 1px;" id="table-cont-pag-{$entity}"></span>
 
     </div>
     <table class="table-all" id="table-{$entity}">
