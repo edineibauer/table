@@ -2,6 +2,7 @@ if (typeof tableNovo !== 'function') {
     var loadTime = searchTime = false;
 
     function tableNovo(entity) {
+        var p = new RegExp(/s$/i);
         $("#btn-table-" + entity).panel(
             themeDashboard("<span class='left color-text-grey'>" + (p.test(entity) ? entity.substr(0, (entity.length-1)) : entity) + "</span>", {
                 lib: 'form-crud',
