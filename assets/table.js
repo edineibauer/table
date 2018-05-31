@@ -3,7 +3,7 @@ if (typeof tableNovo !== 'function') {
 
     function tableNovo(entity) {
         $("#btn-table-" + entity).panel(
-            themeDashboard("<i class='material-icons left padding-right'>create</i><span class='left'>novo</span>", {
+            themeDashboard("<span class='left color-text-grey'>novo</span>", {
                 lib: 'form-crud',
                 file: 'api',
                 entity: entity
@@ -68,7 +68,7 @@ if (typeof tableNovo !== 'function') {
 
     function editEntityDataId(entity, id) {
         $("#edit-" + entity + "-" + id).panel(
-            themeDashboard("<i class='material-icons left padding-right'>create</i><span class='left'>editando</span>", {
+            themeDashboard("<span class='left color-text-grey'>editando</span>", {
                 lib: 'form-crud',
                 file: 'api',
                 entity: entity,
