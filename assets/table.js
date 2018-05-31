@@ -3,7 +3,7 @@ if (typeof tableNovo !== 'function') {
 
     function tableNovo(entity) {
         $("#btn-table-" + entity).panel(
-            themeDashboard("<span class='left color-text-grey'>novo</span>", {
+            themeDashboard("<span class='left color-text-grey'>" + (entity.test(p) ? entity.substr(0, (entity.length-1)) : entity) + "</span>", {
                 lib: 'form-crud',
                 file: 'api',
                 entity: entity
@@ -67,8 +67,9 @@ if (typeof tableNovo !== 'function') {
     }
 
     function editEntityDataId(entity, id) {
+        var p = new RegExp(/s$/i);
         $("#edit-" + entity + "-" + id).panel(
-            themeDashboard("<span class='left color-text-grey'>editando</span>", {
+            themeDashboard("<span class='left color-text-grey'>" + (entity.test(p) ? entity.substr(0, (entity.length-1)) : entity) + "</span>", {
                 lib: 'form-crud',
                 file: 'api',
                 entity: entity,
