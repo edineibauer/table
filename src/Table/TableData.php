@@ -10,7 +10,7 @@ use Helpers\Date;
 use Helpers\DateTime;
 use Helpers\Template;
 
-class TableData
+class TableData extends Table
 {
     private $entity;
     private $limit;
@@ -28,6 +28,7 @@ class TableData
     {
         if ($entity)
             $this->setEntity($entity);
+
     }
 
     /**
@@ -146,7 +147,7 @@ class TableData
 
             $this->pagina = $this->pagina < 2 ? 1 : $this->pagina;
             $this->offset = ($this->pagina * $this->limit) - $this->limit;
-            $where = $this->getWhere($d);
+            $where = parent::getWhere($d, $this->filter);
             $this->total = $this->getMaximo($where);
 
             $read = new Read();
@@ -180,7 +181,6 @@ class TableData
                 foreach ($data as $i => $datum) {
 
                     $data[$i]['permission'] = Entity::checkPermission($this->entity, $datum['id']);
-
                     foreach ($datum as $column => $value) {
                         if ($column === $di['column']) {
                             if(!empty($value)) {
@@ -238,107 +238,72 @@ class TableData
         return (int)$read->getRowCount();
     }
 
-    /**
-     * @param Dicionario $d
-     * @return string
-     */
-    private function getWhere(Dicionario $d): string
-    {
-        $where = "WHERE id > 0";
-        if ($this->filter) {
-            foreach ($this->filter as $item => $value)
-                $where .= " && (" . ($item === "title" ? $d->getRelevant()->getColumn() : $d->search($item)->getColumn()) . " LIKE '%{$value}%' || id LIKE '%{$value}%')";
+    /*
+        private function commandWhere($comand)
+        {
+            switch ($comand['comando']) {
+                case '=':
+                    return ($comand['negado'] ? "!" : "") . "= '{$comand['value']}'";
+                    break;
+                case '>':
+                    return ($comand['negado'] ? "<= " : "> ") . "'{$comand['value']}'";
+                    break;
+                case '<':
+                    return ($comand['negado'] ? ">= " : "< ") . "'{$comand['value']}'";
+                    break;
+                case '>=':
+                    return ($comand['negado'] ? "< " : ">= ") . "'{$comand['value']}'";
+                    break;
+                case '<=':
+                    return ($comand['negado'] ? "> " : "<= ") . "'{$comand['value']}'";
+                    break;
+                case '^':
+                    return ($comand['negado'] ? "NOT " : "") . "LIKE '{$comand['value']}%'";
+                    break;
+                case '$':
+                    return ($comand['negado'] ? "NOT " : "") . "LIKE '%{$comand['value']}'";
+                    break;
 
-            /*
-            foreach (array_map('trim', $this->filter) as $column => $value) {
-                if (!empty($value)) {
-                    foreach (array_map("trim", explode("&&", $value)) as $or) {
-
-                        $where .= (empty($where) ? "WHERE (" : ") && (");
-                        $c = "";
-                        foreach (array_map("trim", explode("||", $or)) as $and) {
-                            $comand = $this->checkCommandWhere($and);
-                            $comand['value'] = strip_tags($comand['value']);
-
-                            if (!empty($comand['value'])) {
-                                $where .= $c . strip_tags($column) . " " . $this->commandWhere($comand);
-                                $c = " || ";
-                            }
-                        }
-                    }
-                }
+                default:
+                    return ($comand['negado'] ? "NOT " : "") . "LIKE '%{$comand['value']}%'";
             }
-            $where .= (!empty($where) ? ")" : "");
-            */
-        }
-        return $where;
-    }
-/*
-    private function commandWhere($comand)
-    {
-        switch ($comand['comando']) {
-            case '=':
-                return ($comand['negado'] ? "!" : "") . "= '{$comand['value']}'";
-                break;
-            case '>':
-                return ($comand['negado'] ? "<= " : "> ") . "'{$comand['value']}'";
-                break;
-            case '<':
-                return ($comand['negado'] ? ">= " : "< ") . "'{$comand['value']}'";
-                break;
-            case '>=':
-                return ($comand['negado'] ? "< " : ">= ") . "'{$comand['value']}'";
-                break;
-            case '<=':
-                return ($comand['negado'] ? "> " : "<= ") . "'{$comand['value']}'";
-                break;
-            case '^':
-                return ($comand['negado'] ? "NOT " : "") . "LIKE '{$comand['value']}%'";
-                break;
-            case '$':
-                return ($comand['negado'] ? "NOT " : "") . "LIKE '%{$comand['value']}'";
-                break;
-
-            default:
-                return ($comand['negado'] ? "NOT " : "") . "LIKE '%{$comand['value']}%'";
-        }
-    }
-
-    private function checkCommandWhere($value)
-    {
-        $negado = false;
-        $comand = "Like";
-
-        if (preg_match('/^!/i', $value)) {
-            $negado = true;
-            $value = substr($value, 1);
         }
 
-        if (preg_match('/^=/i', $value)) {
-            $comand = "=";
-            $value = substr($value, 1);
-        } elseif (preg_match('/^>/i', $value)) {
-            $comand = ">";
-            $value = substr($value, 1);
-        } elseif (preg_match('/^</i', $value)) {
-            $comand = "<";
-            $value = substr($value, 1);
-        } elseif (preg_match('/^>=/i', $value)) {
-            $comand = ">=";
-            $value = substr($value, 2);
-        } elseif (preg_match('/^<=/i', $value)) {
-            $comand = "<=";
-            $value = substr($value, 2);
-        } elseif (preg_match('/^\^/i', $value)) {
-            $comand = "^";
-            $value = substr($value, 1);
-        } elseif (preg_match('/\$$/i', $value)) {
-            $comand = "$";
-            $value = substr($value, 0, -1);
-        }
+        private function checkCommandWhere($value)
+        {
+            $negado = false;
+            $comand = "Like";
 
-        return array("negado" => $negado, "comando" => $comand, "value" => $value);
-    }*/
+            if (preg_match('/^!/i', $value)) {
+                $negado = true;
+                $value = substr($value, 1);
+            }
+
+            if (preg_match('/^=/i', $value)) {
+                $comand = "=";
+                $value = substr($value, 1);
+            } elseif (preg_match('/^>/i', $value)) {
+                $comand = ">";
+                $value = substr($value, 1);
+            } elseif (preg_match('/^</i', $value)) {
+                $comand = "<";
+                $value = substr($value, 1);
+            } elseif (preg_match('/^>=/i', $value)) {
+                $comand = ">=";
+                $value = substr($value, 2);
+            } elseif (preg_match('/^<=/i', $value)) {
+                $comand = "<=";
+                $value = substr($value, 2);
+            } elseif (preg_match('/^\^/i', $value)) {
+                $comand = "^";
+                $value = substr($value, 1);
+            } elseif (preg_match('/\$$/i', $value)) {
+                $comand = "$";
+                $value = substr($value, 0, -1);
+            }
+
+            return array("negado" => $negado, "comando" => $comand, "value" => $value);
+        }*/
 
     private function getOrder()
     {
