@@ -197,7 +197,7 @@
         },
 
         util: {
-            createPage: function (pageData) {c
+            createPage: function (pageData) {
                 return $('<li>')
                     .html('<span>' + pageData + '</span>')
                     .addClass('hover-opacity-off opacity button')
