@@ -215,13 +215,10 @@ class TableData extends Table
         if (!empty($value)) {
             $value = json_decode($value, true);
 
-            switch ($value[0]['type']) {
-                case 'image/jpeg':
-                    return "<img src='{$value[0]['url']}' title='{$value[0]['name']}' height='30' style='height: 30px;width: auto' />";
-                    break;
-                default:
-                    return "";
-            }
+            if (preg_match('/^image\//i', $value[0]['type']))
+                return "<img src='{$value[0]['url']}' title='{$value[0]['name']}' height='30' style='height: 30px;width: auto' />";
+
+            return "";
         }
 
         return "";
