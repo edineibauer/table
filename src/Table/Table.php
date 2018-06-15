@@ -9,45 +9,73 @@ use Helpers\Template;
 
 class Table
 {
+    private $entity;
+    private $listaId = 0;
+
     /**
+     * Table constructor.
      * @param string $entity
+     */
+    public function __construct(string $entity = "")
+    {
+        $this->setEntity($entity);
+    }
+
+    /**
+     * @param mixed $entity
+     */
+    public function setEntity($entity)
+    {
+        $this->entity = $entity;
+    }
+
+    /**
+     * @param array $listaId
+     */
+    public function setListaId(array $listaId)
+    {
+        $this->listaId = $listaId;
+    }
+
+    /**
+     * @param mixed $entity
      * @return string
      */
-    public static function getShow(string $entity): string
+    public function getShow($entity = null): string
     {
-        return self::getTable($entity);
+        if ($entity)
+            $this->setEntity($entity);
+
+        return $this->getTable();
     }
 
     /**
      * @param string $entity
      */
-    public static function show(string $entity)
+    public function show(string $entity)
     {
-        echo self::getShow($entity);
+        echo $this->getShow($entity);
     }
 
     /**
      * @param string $entity
      * @return string
      */
-    private static function getTable(string $entity): string
+    private function getTable(): string
     {
         $dados['header'] = [];
-        $relevants = Metadados::getRelevantAll($entity);
-        foreach (Metadados::getDicionario($entity, true) as $i => $data) {
+        $relevants = Metadados::getRelevantAll($this->entity);
+        foreach (Metadados::getDicionario($this->entity, true) as $i => $data) {
             if (in_array($data['format'], $relevants) && $data['form'] && count($dados['header']) < 6) {
-
                 $dados['header'][] = $data['nome'];
-                $dados['meta'][] = $data['format'];
             }
         }
 
-        unset($dados['meta']);
-        $dados['entity'] = $entity;
+        $dados['entity'] = $this->entity;
 
-        $where = self::getWhere(new Dicionario($entity));
+        $where = $this->getWhere(new Dicionario($this->entity));
         $read = new Read();
-        $read->exeRead(PRE . $entity, $where);
+        $read->exeRead(PRE . $this->entity, $where);
         $dados['total'] = $read->getRowCount();
 
         $template = new Template("table");
@@ -59,14 +87,23 @@ class Table
      * @param mixed $filter
      * @return string
      */
-    protected static function getWhere(Dicionario $d, $filter = null): string
+    protected function getWhere(Dicionario $d, $filter = null): string
     {
         $where = "WHERE id > 0";
 
-        if($idP = $d->getInfo()['publisher']){
+        //filtro de tabela por owner
+        if ($idP = $d->getInfo()['publisher']) {
             $metaOwner = $d->search($idP);
-            if($metaOwner->getFormat() === "owner" && $_SESSION['userlogin']['setor'] > 1)
+            if ($metaOwner->getFormat() === "owner" && $_SESSION['userlogin']['setor'] > 1)
                 $where .= " && " . $metaOwner->getColumn() . " = {$_SESSION['userlogin']['id']}";
+        }
+
+        //filtro de tabela por lista de IDs
+        if ($this->listaId !== 0) {
+            if (!empty($this->listaId))
+                $where .= implode(" && id = ", $this->listaId);
+            else
+                $where = "WHERE id < 0";
         }
 
         if ($filter) {
