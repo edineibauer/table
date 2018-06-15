@@ -10,7 +10,10 @@ use Helpers\Template;
 class Table
 {
     private $entity;
-    private $listaId = 0;
+    private $relation;
+    private $column;
+    private $type;
+    private $id;
 
     /**
      * Table constructor.
@@ -30,11 +33,35 @@ class Table
     }
 
     /**
-     * @param array $listaId
+     * @param string $relation
      */
-    public function setListaId(array $listaId)
+    public function setRelation(string $relation)
     {
-        $this->listaId = $listaId;
+        $this->relation = $relation;
+    }
+
+    /**
+     * @param string $column
+     */
+    public function setColumn(string $column)
+    {
+        $this->column = $column;
+    }
+
+    /**
+     * @param string $type
+     */
+    public function setType(string $type)
+    {
+        $this->type = $type;
+    }
+
+    /**
+     * @param int $id
+     */
+    public function setId(int $id)
+    {
+        $this->id = $id;
     }
 
     /**
@@ -58,6 +85,14 @@ class Table
     }
 
     /**
+     * @return string
+     */
+    protected function getEntity(): string
+    {
+        return $this->entity;
+    }
+
+    /**
      * @param string $entity
      * @return string
      */
@@ -72,6 +107,10 @@ class Table
         }
 
         $dados['entity'] = $this->entity;
+        $dados['relation'] = $this->relation;
+        $dados['column'] = $this->column;
+        $dados['type'] = $this->type;
+        $dados['id'] = $this->id;
 
         $where = $this->getWhere(new Dicionario($this->entity));
         $read = new Read();
@@ -99,11 +138,20 @@ class Table
         }
 
         //filtro de tabela por lista de IDs
-        if ($this->listaId !== 0) {
-            if (!empty($this->listaId))
-                $where .= implode(" && id = ", $this->listaId);
+        if (!empty($this->type)) {
+            $read = new \ConnCrud\Read();
+            if ($this->type === "owner")
+                $read->exeRead(PRE . $this->relation . "_" . $this->entity . "_" . $this->column, "WHERE {$this->relation}_id =:id", "id={$this->id}");
             else
+                $read->exeRead(PRE . $this->relation . "_" . $this->entity . "_" . $this->column, "WHERE {$this->relation}_id =:id", "id={$this->id}");
+
+            if ($read->getResult()) {
+                foreach ($read->getResult() as $item)
+                    $where .= " && id = {$item["{$this->entity}_id"]}";
+            } else {
+                var_dump(PRE . $this->relation . "_" . $this->entity . "_" . $this->column);
                 $where = "WHERE id < 0";
+            }
         }
 
         if ($filter) {

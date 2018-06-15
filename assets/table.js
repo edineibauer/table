@@ -96,15 +96,18 @@ if (typeof tableNovo !== 'function') {
     }
 
     function readTable(entity) {
-        var limit = $("#limit-" + entity).val();
-        var search = $("#search-" + entity).val();
-        var offset = $("#table-pagina-" + entity).val();
-        post('table', 'read/data', {
+        let param = {
             entity: entity,
-            limit: limit,
-            offset: offset,
-            filter: {title: search}
-        }, function (data) {
+            limit: $("#limit-" + entity).val(),
+            search: $("#search-" + entity).val(),
+            offset: $("#table-pagina-" + entity).val(),
+            relation: $("#data-relation-" + entity).val(),
+            column: $("#data-column-" + entity).val(),
+            type: $("#data-type-" + entity).val(),
+            id: $("#data-id-" + entity).val(),
+            filter: {title: $("#search-" + entity).val()}
+        };
+        post('table', 'read/data', param, function (data) {
             clearInterval(loadTime);
             var $table = $("#table-" + entity);
             $table.find("tr").not(":eq(0)").remove();

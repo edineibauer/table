@@ -47,7 +47,11 @@
 
     <div class="row panel" id="pagination-{$entity}"></div>
 
-    <input type="hidden" class="table-pagina" value="1" data-entity="{$entity}" id="table-pagina-{$entity}"/>
+    <input type="hidden" class="table-pagina-{$entity}" value="1" data-entity="{$entity}" id="table-pagina-{$entity}"/>
+    <input type="hidden" id="data-relation-{$entity}" value="{$relation}">
+    <input type="hidden" id="data-column-{$entity}" value="{$column}">
+    <input type="hidden" id="data-type-{$entity}" value="{$type}">
+    <input type="hidden" id="data-id-{$entity}" value="{$id}">
 
     <script src="{$home}vendor/conn/table/assets/table.min.js" defer></script>
     <script src="{$home}vendor/conn/table/assets/pagination.min.js" defer></script>

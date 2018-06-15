@@ -12,7 +12,6 @@ use Helpers\Template;
 
 class TableData extends Table
 {
-    private $entity;
     private $limit;
     private $pagina;
     private $offset;
@@ -27,16 +26,8 @@ class TableData extends Table
     public function __construct($entity)
     {
         if ($entity)
-            $this->setEntity($entity);
+            parent::setEntity($entity);
 
-    }
-
-    /**
-     * @param mixed $entity
-     */
-    public function setEntity($entity)
-    {
-        $this->entity = $entity;
     }
 
     /**
@@ -85,6 +76,38 @@ class TableData extends Table
     public function setOrderAsc(bool $orderAsc)
     {
         $this->orderAsc = $orderAsc;
+    }
+
+    /**
+     * @param string $relation
+     */
+    public function setRelation(string $relation)
+    {
+        parent::setRelation($relation);
+    }
+
+    /**
+     * @param string $column
+     */
+    public function setColumn(string $column)
+    {
+        parent::setColumn($column);
+    }
+
+    /**
+     * @param string $type
+     */
+    public function setType(string $type)
+    {
+        parent::setType($type);
+    }
+
+    /**
+     * @param int $id
+     */
+    public function setId(int $id)
+    {
+        parent::setId($id);
     }
 
     /**
@@ -139,11 +162,11 @@ class TableData extends Table
 
     private function start()
     {
-        if ($this->entity) {
+        if (parent::getEntity()) {
 
-            $d = new Dicionario($this->entity);
-            $dicionario = Metadados::getDicionario($this->entity, true);
-            $relevants = Metadados::getRelevantAll($this->entity);
+            $d = new Dicionario(parent::getEntity());
+            $dicionario = Metadados::getDicionario(parent::getEntity(), true);
+            $relevants = Metadados::getRelevantAll(parent::getEntity());
 
             $this->pagina = $this->pagina < 2 ? 1 : $this->pagina;
             $this->offset = ($this->pagina * $this->limit) - $this->limit;
@@ -151,7 +174,7 @@ class TableData extends Table
             $this->total = $this->getMaximo($where);
 
             $read = new Read();
-            $read->exeRead(PRE . $this->entity, $where . $this->getOrder());
+            $read->exeRead(PRE . parent::getEntity(), $where . $this->getOrder());
             if ($read->getResult()) {
                 $this->count = $read->getRowCount();
                 $this->response = true;
@@ -162,7 +185,7 @@ class TableData extends Table
                         $dados['names'][] = $data['column'];
                 }
 
-                $dados['entity'] = $this->entity;
+                $dados['entity'] = parent::getEntity();
                 $dados['values'] = $this->dataMask($read->getResult(), $dicionario, $relevants);
 
                 $template = new Template('table');
@@ -180,7 +203,7 @@ class TableData extends Table
             if (in_array($di['format'], $relevants)) {
                 foreach ($data as $i => $datum) {
 
-                    $data[$i]['permission'] = Entity::checkPermission($this->entity, $datum['id']);
+                    $data[$i]['permission'] = Entity::checkPermission(parent::getEntity(), $datum['id']);
                     foreach ($datum as $column => $value) {
                         if ($column === $di['column']) {
                             if(!empty($value)) {
@@ -231,7 +254,7 @@ class TableData extends Table
     public function getMaximo(string $where): int
     {
         $read = new Read();
-        $read->exeRead(PRE . $this->entity, $where);
+        $read->exeRead(PRE . parent::getEntity(), $where);
         return (int)$read->getRowCount();
     }
 
