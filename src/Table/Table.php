@@ -99,7 +99,7 @@ class Table
         }
 
         //filtro de tabela por lista de IDs
-        $general = json_decode(file_get_contents(PATH_HOME . "entity/cache/info/general_info.json"), true);
+        $general = json_decode(file_get_contents(PATH_HOME . "entity/general/general_info.json"), true);
         if (!empty($general[$this->entity]['owner'])) {
             $entityRelation = $general[$this->entity]['owner'][0];
             $column = $general[$this->entity]['owner'][1];
