@@ -101,10 +101,6 @@ if (typeof tableNovo !== 'function') {
             limit: $("#limit-" + entity).val(),
             search: $("#search-" + entity).val(),
             offset: $("#table-pagina-" + entity).val(),
-            relation: $("#data-relation-" + entity).val(),
-            column: $("#data-column-" + entity).val(),
-            type: $("#data-type-" + entity).val(),
-            id: $("#data-id-" + entity).val(),
             filter: {title: $("#search-" + entity).val()}
         };
         post('table', 'read/data', param, function (data) {

@@ -79,38 +79,6 @@ class TableData extends Table
     }
 
     /**
-     * @param string $relation
-     */
-    public function setRelation(string $relation)
-    {
-        parent::setRelation($relation);
-    }
-
-    /**
-     * @param string $column
-     */
-    public function setColumn(string $column)
-    {
-        parent::setColumn($column);
-    }
-
-    /**
-     * @param string $type
-     */
-    public function setType(string $type)
-    {
-        parent::setType($type);
-    }
-
-    /**
-     * @param int $id
-     */
-    public function setId(int $id)
-    {
-        parent::setId($id);
-    }
-
-    /**
      * @return mixed
      */
     public function getOffset()

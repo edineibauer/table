@@ -10,10 +10,6 @@ use Helpers\Template;
 class Table
 {
     private $entity;
-    private $relation;
-    private $column;
-    private $type;
-    private $id;
 
     /**
      * Table constructor.
@@ -30,38 +26,6 @@ class Table
     public function setEntity($entity)
     {
         $this->entity = $entity;
-    }
-
-    /**
-     * @param string $relation
-     */
-    public function setRelation(string $relation)
-    {
-        $this->relation = $relation;
-    }
-
-    /**
-     * @param string $column
-     */
-    public function setColumn(string $column)
-    {
-        $this->column = $column;
-    }
-
-    /**
-     * @param string $type
-     */
-    public function setType(string $type)
-    {
-        $this->type = $type;
-    }
-
-    /**
-     * @param int $id
-     */
-    public function setId(int $id)
-    {
-        $this->id = $id;
     }
 
     /**
@@ -107,12 +71,9 @@ class Table
         }
 
         $dados['entity'] = $this->entity;
-        $dados['relation'] = $this->relation;
-        $dados['column'] = $this->column;
-        $dados['type'] = $this->type;
-        $dados['id'] = $this->id;
 
         $where = $this->getWhere(new Dicionario($this->entity));
+
         $read = new Read();
         $read->exeRead(PRE . $this->entity, $where);
         $dados['total'] = $read->getRowCount();
@@ -138,21 +99,30 @@ class Table
         }
 
         //filtro de tabela por lista de IDs
-        if (!empty($this->type)) {
-            $read = new \ConnCrud\Read();
-            if ($this->type === "owner")
-                $read->exeRead(PRE . $this->relation . "_" . $this->entity . "_" . $this->column, "WHERE {$this->relation}_id =:id", "id={$this->id}");
-            else
-                $read->exeRead(PRE . $this->relation . "_" . $this->entity . "_" . $this->column, "WHERE {$this->relation}_id =:id", "id={$this->id}");
+        $general = json_decode(file_get_contents(PATH_HOME . "entity/cache/info/general_info.json"), true);
+        if (!empty($general[$this->entity]['owner'])) {
+            $entityRelation = $general[$this->entity]['owner'][0];
+            $column = $general[$this->entity]['owner'][1];
+            $userColumn = $general[$this->entity]['owner'][2];
+            $tableRelational = PRE . $entityRelation . "_" . $this->entity . "_" . $column;
 
-            if ($read->getResult()) {
-                foreach ($read->getResult() as $item)
-                    $where .= " && id = {$item["{$this->entity}_id"]}";
-            } else {
-                var_dump(PRE . $this->relation . "_" . $this->entity . "_" . $this->column);
-                $where = "WHERE id < 0";
+            $read = new Read();
+            $read->exeRead($entityRelation, "WHERE {$userColumn} = :user", "user={$_SESSION['userlogin']['id']}");
+            if($read->getResult()) {
+                $idUser = $read->getResult()[0]['id'];
+
+                $read->exeRead($tableRelational, "WHERE {$entityRelation}_id = :id", "id={$idUser}");
+                if ($read->getResult()) {
+                    $where .= " && (id = 0";
+                    foreach ($read->getResult() as $item)
+                        $where .= " || id = {$item["{$this->entity}_id"]}";
+                    $where .= ")";
+                } else {
+                    $where = "WHERE id < 0";
+                }
             }
         }
+
 
         if ($filter) {
             foreach ($filter as $item => $value)
