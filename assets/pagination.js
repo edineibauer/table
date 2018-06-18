@@ -217,7 +217,7 @@
             Ellipsis: function () {
                 var $ellipsis = $('<li>');
                 $ellipsis.text('...');
-                $ellipsis.addClass('hide disabled');
+                $ellipsis.addClass('hide button');
                 return {
                     $elem: $ellipsis,
                     isHidden: true,

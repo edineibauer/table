@@ -5,7 +5,6 @@ namespace Table;
 use ConnCrud\Read;
 use Entity\Entity;
 use EntityForm\Dicionario;
-use EntityForm\Metadados;
 use Helpers\Date;
 use Helpers\DateTime;
 use Helpers\Template;
