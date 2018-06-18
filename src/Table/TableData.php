@@ -133,8 +133,6 @@ class TableData extends Table
         if (parent::getEntity()) {
 
             $d = new Dicionario(parent::getEntity());
-            $dicionario = Metadados::getDicionario(parent::getEntity(), true);
-            $relevants = Metadados::getRelevantAll(parent::getEntity());
 
             $this->pagina = $this->pagina < 2 ? 1 : $this->pagina;
             $this->offset = ($this->pagina * $this->limit) - $this->limit;
@@ -147,14 +145,9 @@ class TableData extends Table
                 $this->count = $read->getRowCount();
                 $this->response = true;
 
-                $dados['names'] = [];
-                foreach ($dicionario as $data) {
-                    if (in_array($data['format'], $relevants) && $data['form'] && count($dados['names']) < 6)
-                        $dados['names'][] = $data['column'];
-                }
-
+                $dados['names'] = parent::getFields()['column'];
                 $dados['entity'] = parent::getEntity();
-                $dados['values'] = $this->dataMask($read->getResult(), $dicionario, $relevants);
+                $dados['values'] = $this->dataMask($read->getResult());
 
                 $template = new Template('table');
                 $this->dados = $template->getShow("tableContent", $dados);
@@ -163,37 +156,28 @@ class TableData extends Table
         }
     }
 
-    private function dataMask($data, $dic, array $relevants)
+    private function dataMask($data)
     {
         $datetime = new DateTime();
         $date = new Date();
-        foreach ($dic as $di) {
-            if (in_array($di['format'], $relevants)) {
-                foreach ($data as $i => $datum) {
-
-                    $data[$i]['permission'] = Entity::checkPermission(parent::getEntity(), $datum['id']);
-                    foreach ($datum as $column => $value) {
-                        if ($column === $di['column']) {
-                            if(!empty($value)) {
-                                switch ($di['format']) {
-                                    case 'datetime':
-                                        $data[$i][$column] = $datetime->getDateTime($value, "H:i\h d/m/y");
-                                        break;
-                                    case 'date':
-                                        $data[$i][$column] = $date->getDate($value, "d/m/y");
-                                        break;
-                                    case 'source':
-                                        $data[$i][$column] = $this->getSource($value);
-                                        break;
-                                    case 'status':
-                                    case 'boolean':
-                                        $data[$i][$column] = $value ? "<span class='color-green tag'>ON</span>" : "<span class='color-orange tag color-text-white'>OFF</span>";
-                                        break;
-                                }
-                            }
-                            break;
-                        }
-                    }
+        foreach ($data as $i => $datum) {
+            $data[$i]['permission'] = Entity::checkPermission(parent::getEntity(), $datum['id']);
+            $format = parent::getFields()['format'];
+            foreach (parent::getFields()['column'] as $e => $field) {
+                switch ($format[$e]) {
+                    case 'datetime':
+                        $data[$i][$field] = !empty($datum[$field]) ? $datetime->getDateTime($datum[$field], "H:i\h d/m/y") : "";
+                        break;
+                    case 'date':
+                        $data[$i][$field] = !empty($datum[$field]) ? $date->getDate($datum[$field], "d/m/y") : "";
+                        break;
+                    case 'source':
+                        $data[$i][$field] = $this->getSource($datum[$field]);
+                        break;
+                    case 'status':
+                    case 'boolean':
+                        $data[$i][$field] = !empty($datum[$field]) && $datum[$field] ? "<span class='color-green tag'>&nbsp;ON&nbsp;</span>" : "<span class='color-orange tag color-text-white'>OFF</span>";
+                        break;
                 }
             }
         }

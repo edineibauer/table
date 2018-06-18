@@ -10,6 +10,7 @@ use Helpers\Template;
 class Table
 {
     private $entity;
+    private $fields;
 
     /**
      * Table constructor.
@@ -26,6 +27,32 @@ class Table
     public function setEntity($entity)
     {
         $this->entity = $entity;
+    }
+
+    /**
+     * @param mixed $fields
+     */
+    public function setFields($fields)
+    {
+        $this->fields = $fields;
+    }
+
+    /**
+     * @return mixed
+     */
+    protected function getFields()
+    {
+        if(!$this->fields) {
+            $relevants = Metadados::getRelevantAll($this->entity);
+            foreach (Metadados::getDicionario($this->entity, true) as $i => $data) {
+                if (in_array($data['format'], $relevants) && $data['form'] && count($this->fields['nome']) < 5) {
+                    $this->fields['nome'][] = $data['nome'];
+                    $this->fields['column'][] = $data['column'];
+                    $this->fields['format'][] = $data['format'];
+                }
+            }
+        }
+        return $this->fields;
     }
 
     /**
@@ -62,21 +89,11 @@ class Table
      */
     private function getTable(): string
     {
-        $dados['header'] = [];
-        $relevants = Metadados::getRelevantAll($this->entity);
-        foreach (Metadados::getDicionario($this->entity, true) as $i => $data) {
-            if (in_array($data['format'], $relevants) && $data['form'] && count($dados['header']) < 6) {
-                $dados['header'][] = $data['nome'];
-            }
-        }
-
-        $dados['entity'] = $this->entity;
-
-        $where = $this->getWhere(new Dicionario($this->entity));
-
         $read = new Read();
-        $read->exeRead(PRE . $this->entity, $where);
+        $read->exeRead(PRE . $this->entity, $this->getWhere(new Dicionario($this->entity)));
         $dados['total'] = $read->getRowCount();
+        $dados['entity'] = $this->entity;
+        $dados['header'] = $this->getFields()['nome'];
 
         $template = new Template("table");
         return $template->getShow("table", $dados);
@@ -122,7 +139,6 @@ class Table
                 }
             }
         }
-
 
         if ($filter) {
             foreach ($filter as $item => $value)
