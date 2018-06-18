@@ -1,5 +1,5 @@
 if (typeof tableNovo !== 'function') {
-    var loadTime = searchTime = false;
+    var searchTime = false;
 
     function tableNovo(entity) {
         var p = new RegExp(/s$/i);
@@ -84,7 +84,7 @@ if (typeof tableNovo !== 'function') {
 
     function deleteEntityDataId(entity, id) {
         post('table', 'delete/data', {entity: entity, id: id}, function (g) {
-            clearInterval(loadTime);
+            clearLoadTable(entity);
             $("#row-" + entity + "-" + id).remove();
         });
     }
@@ -95,6 +95,10 @@ if (typeof tableNovo !== 'function') {
         });
     }
 
+    function clearLoadTable(entity) {
+        $("#table-" + entity + " tbody").removeClass("opacity").html('');
+    }
+
     function readTable(entity) {
         let param = {
             entity: entity,
@@ -103,11 +107,11 @@ if (typeof tableNovo !== 'function') {
             offset: $("#table-pagina-" + entity).val(),
             filter: {title: $("#search-" + entity).val()}
         };
+        var $table = $("#table-" + entity + " tbody");
+        loadingTable(entity);
         post('table', 'read/data', param, function (data) {
-            clearInterval(loadTime);
-            var $table = $("#table-" + entity);
-            $table.find("tr").not(":eq(0)").remove();
-            $table.append(data.content);
+            clearLoadTable(entity);
+            $table.html(data.content);
             $("#table-cont-pag-" + entity).html(data.pagination + " \\");
             $("#table-total-" + entity).html(data.total);
 
@@ -127,10 +131,7 @@ if (typeof tableNovo !== 'function') {
     }
 
     function loadingTable(entity) {
-        $("#tableList-" + entity).loading();
-        loadTime = setInterval(function () {
-            $("#tableList-" + entity).loading();
-        }, 2000);
+        $("#table-" + entity + " tbody").addClass("opacity").append('<div class="loaderDashboard"><svg viewBox="0 0 32 32" width="32" height="32"><circle id="spinner" style="stroke: teal" cx="16" cy="16" r="14" fill="none"></circle></svg></div>');
     }
 
     function resetPagination(entity) {
@@ -153,9 +154,9 @@ if (typeof tableNovo !== 'function') {
 
         $(".table-search").off("keyup change").on("keyup change", function () {
             var entity = $(this).attr("data-entity");
+            loadingTable(entity);
             clearTimeout(searchTime);
             searchTime = setTimeout(function () {
-                loadingTable(entity);
                 readTable(entity);
             }, 400);
         });

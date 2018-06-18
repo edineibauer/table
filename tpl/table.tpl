@@ -30,6 +30,7 @@
 
     </div>
     <table class="table-all" id="table-{$entity}">
+        <thead>
         <tr>
             {foreach item=item key=i from=$header}
                 <th>{if $i === 0}
@@ -43,6 +44,8 @@
             {/foreach}
             <th class="align-right" style="padding-right: 20px;">Ações</th>
         </tr>
+        </thead>
+        <tbody class="relative"></tbody>
     </table>
 
     <div class="row panel" id="pagination-{$entity}"></div>
