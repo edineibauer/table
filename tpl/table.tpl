@@ -1,7 +1,7 @@
 <div class="responsive tableList" id="tableList-{$entity}" data-entity="{$entity}">
     <div class="row panel">
 
-        <div class="font-xlarge left">{$entity}</div>
+        <div class="font-xlarge left">{$entityName}</div>
 
         <span class="padding-medium color-text-grey left">
             <b id="table-total-{$entity}">{$total}</b> registros</span>
