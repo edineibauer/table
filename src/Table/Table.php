@@ -116,26 +116,28 @@ class Table
         }
 
         //filtro de tabela por lista de IDs
-        $general = json_decode(file_get_contents(PATH_HOME . "entity/general/general_info.json"), true);
-        if (!empty($general[$this->entity]['owner'])) {
-            $entityRelation = $general[$this->entity]['owner'][0];
-            $column = $general[$this->entity]['owner'][1];
-            $userColumn = $general[$this->entity]['owner'][2];
-            $tableRelational = PRE . $entityRelation . "_" . $this->entity . "_" . $column;
+        if(file_exists(PATH_HOME . "entity/general/general_info.json")) {
+            $general = json_decode(file_get_contents(PATH_HOME . "entity/general/general_info.json"), true);
+            if (!empty($general[$this->entity]['owner'])) {
+                $entityRelation = $general[$this->entity]['owner'][0];
+                $column = $general[$this->entity]['owner'][1];
+                $userColumn = $general[$this->entity]['owner'][2];
+                $tableRelational = PRE . $entityRelation . "_" . $this->entity . "_" . $column;
 
-            $read = new Read();
-            $read->exeRead($entityRelation, "WHERE {$userColumn} = :user", "user={$_SESSION['userlogin']['id']}");
-            if($read->getResult()) {
-                $idUser = $read->getResult()[0]['id'];
-
-                $read->exeRead($tableRelational, "WHERE {$entityRelation}_id = :id", "id={$idUser}");
+                $read = new Read();
+                $read->exeRead($entityRelation, "WHERE {$userColumn} = :user", "user={$_SESSION['userlogin']['id']}");
                 if ($read->getResult()) {
-                    $where .= " && (id = 0";
-                    foreach ($read->getResult() as $item)
-                        $where .= " || id = {$item["{$this->entity}_id"]}";
-                    $where .= ")";
-                } else {
-                    $where = "WHERE id < 0";
+                    $idUser = $read->getResult()[0]['id'];
+
+                    $read->exeRead($tableRelational, "WHERE {$entityRelation}_id = :id", "id={$idUser}");
+                    if ($read->getResult()) {
+                        $where .= " && (id = 0";
+                        foreach ($read->getResult() as $item)
+                            $where .= " || id = {$item["{$this->entity}_id"]}";
+                        $where .= ")";
+                    } else {
+                        $where = "WHERE id < 0";
+                    }
                 }
             }
         }
