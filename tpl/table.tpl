@@ -16,7 +16,7 @@
         </label>
 
         <select class="right tableLimit font-small" id="limit-{$entity}" data-entity="{$entity}"
-                style="width: auto;margin-bottom: 0;margin-top: -2px;">
+                style="width: auto;margin-bottom: 0;margin-top: 2px;">
             <option value="15">15</option>
             <option value="25">25</option>
             <option value="50">50</option>
@@ -26,7 +26,7 @@
             <option value="1000">1000</option>
         </select>
 
-        <span class="padding-small color-text-grey right table-cont-pag" style="margin-top: 1.5px;" id="table-cont-pag-{$entity}"></span>
+        <span class="padding-small color-text-grey right table-cont-pag" style="margin-top: 5px;" id="table-cont-pag-{$entity}"></span>
 
     </div>
     <table class="table-all" id="table-{$entity}">
