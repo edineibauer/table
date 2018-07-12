@@ -42,7 +42,7 @@ class Table
      */
     protected function getFields()
     {
-        if(!$this->fields) {
+        if(!empty($this->fields)) {
             $relevants = Metadados::getRelevantAll($this->entity);
             foreach (Metadados::getDicionario($this->entity, true) as $i => $data) {
                 if (in_array($data['format'], $relevants) && $data['form'] && count($this->fields['nome']) < 5) {
