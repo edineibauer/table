@@ -45,7 +45,7 @@ class Table
         if(empty($this->fields)) {
             $relevants = Metadados::getRelevantAll($this->entity);
             foreach (Metadados::getDicionario($this->entity, true) as $i => $data) {
-                if (in_array($data['format'], $relevants) && $data['form'] && count($this->fields['nome']) < 5) {
+                if (in_array($data['format'], $relevants) && $data['form'] && (empty($this->fields) || count($this->fields['nome']) < 5)) {
                     $this->fields['nome'][] = $data['nome'];
                     $this->fields['column'][] = $data['column'];
                     $this->fields['format'][] = $data['format'];
