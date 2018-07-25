@@ -102,7 +102,6 @@ if (typeof tableNovo !== 'function') {
         var $table = $("#table-" + entity + " tbody");
         loadingTable(entity);
         post('table', 'read/data', param, function (data) {
-            console.log(data);
             clearLoadTable(entity);
             $table.html(data.content);
             $("#table-cont-pag-" + entity).html(data.pagination + " \\");
