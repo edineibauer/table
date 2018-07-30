@@ -96,8 +96,7 @@ if (typeof tableNovo !== 'function') {
             entity: entity,
             limit: $("#limit-" + entity).val(),
             search: $("#search-" + entity).val(),
-            offset: $("#table-pagina-" + entity).val(),
-            filter: {title: $("#search-" + entity).val()}
+            offset: $("#table-pagina-" + entity).val()
         };
         var $table = $("#table-" + entity + " tbody");
         loadingTable(entity);

@@ -11,6 +11,7 @@ class Table
 {
     private $entity;
     private $fields;
+    private $search;
 
     /**
      * Table constructor.
@@ -30,6 +31,14 @@ class Table
     }
 
     /**
+     * @param mixed $search
+     */
+    public function setSearch($search)
+    {
+        $this->search = $search;
+    }
+
+    /**
      * @param mixed $fields
      */
     public function setFields($fields)
@@ -42,7 +51,7 @@ class Table
      */
     protected function getFields()
     {
-        if(empty($this->fields)) {
+        if (empty($this->fields)) {
             $relevants = Metadados::getRelevantAll($this->entity);
             foreach (Metadados::getDicionario($this->entity, true) as $i => $data) {
                 if (in_array($data['format'], $relevants) && $data['form'] && (empty($this->fields) || count($this->fields['nome']) < 5)) {
@@ -102,10 +111,10 @@ class Table
 
     /**
      * @param Dicionario $d
-     * @param mixed $filter
+     * @param array|null $filter
      * @return string
      */
-    protected function getWhere(Dicionario $d, $filter = null): string
+    protected function getWhere(Dicionario $d, array $filter = null): string
     {
         $where = "WHERE id > 0";
 
@@ -118,7 +127,7 @@ class Table
 
         //filtro de tabela por lista de IDs
         $general = json_decode(file_get_contents(PATH_HOME . "entity/general/general_info.json"), true);
-        if(!empty($general[$this->entity]['owner']) || !empty($general[$this->entity]['ownerPublisher'])) {
+        if (!empty($general[$this->entity]['owner']) || !empty($general[$this->entity]['ownerPublisher'])) {
             foreach (array_merge($general[$this->entity]['owner'] ?? [], $general[$this->entity]['ownerPublisher'] ?? []) as $item) {
                 $entityRelation = $item[0];
                 $column = $item[1];
@@ -127,7 +136,7 @@ class Table
 
                 $read = new Read();
                 $read->exeRead($entityRelation, "WHERE {$userColumn} = :user", "user={$_SESSION['userlogin']['id']}");
-                if($read->getResult()) {
+                if ($read->getResult()) {
                     $idUser = $read->getResult()[0]['id'];
 
                     $read->exeRead($tableRelational, "WHERE {$entityRelation}_id = :id", "id={$idUser}");
@@ -143,32 +152,21 @@ class Table
             }
         }
 
-        if ($filter) {
-            foreach ($filter as $item => $value)
-                $where .= " && (" . ($item === "title" ? $d->getRelevant()->getColumn() : $d->search($item)->getColumn()) . " LIKE '%{$value}%' || id LIKE '%{$value}%')";
-
-            /*
-            foreach (array_map('trim', $this->filter) as $column => $value) {
-                if (!empty($value)) {
-                    foreach (array_map("trim", explode("&&", $value)) as $or) {
-
-                        $where .= (empty($where) ? "WHERE (" : ") && (");
-                        $c = "";
-                        foreach (array_map("trim", explode("||", $or)) as $and) {
-                            $comand = $this->checkCommandWhere($and);
-                            $comand['value'] = strip_tags($comand['value']);
-
-                            if (!empty($comand['value'])) {
-                                $where .= $c . strip_tags($column) . " " . $this->commandWhere($comand);
-                                $c = " || ";
-                            }
-                        }
-                    }
+        if (!empty($this->search) && is_string($this->search)) {
+            $where .= " && (";
+            foreach (['identifier', 'title', 'link', 'email', 'tel', 'cpf', 'cnpj', 'cep'] as $item) {
+                if (!empty($d->getInfo()[$item]) && !empty($c = $d->search($d->getInfo()[$item]))) {
+                    $where .= (isset($firstSearch) ? " || " : "") . PRE . $this->entity . ".{$c->getColumn()} LIKE '%{$this->search}%'";
+                    $firstSearch = 1;
                 }
             }
-            $where .= (!empty($where) ? ")" : "");
-            */
+            $where .= ")";
+
+        } elseif ($filter) {
+            foreach ($filter as $item => $value)
+                $where .= " && (" . ($item === "title" ? $d->getRelevant()->getColumn() : $d->search($item)->getColumn()) . " LIKE '%{$value}%' || id LIKE '%{$value}%')";
         }
+
         return $where;
     }
 }

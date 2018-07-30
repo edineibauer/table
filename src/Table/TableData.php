@@ -139,7 +139,7 @@ class TableData extends Table
             $this->total = $this->getMaximo($where);
 
             $read = new Read();
-            $read->exeRead(PRE . parent::getEntity(), $where . $this->getOrder());
+            $read->exeRead(PRE . parent::getEntity(), $where . " " . $this->getOrder());
             if ($read->getResult()) {
                 $this->count = $read->getRowCount();
                 $this->response = true;
