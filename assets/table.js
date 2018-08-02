@@ -102,7 +102,7 @@ if (typeof tableNovo !== 'function') {
         loadingTable(entity);
         post('table', 'read/data', param, function (data) {
             clearLoadTable(entity);
-            $table.html(data);
+            $table.html(data.content);
             $("#table-cont-pag-" + entity).html(data.pagination + " \\");
             $("#table-total-" + entity).html(data.total);
             if ($('#pagination-' + entity).html() === "" && data.pagination > 1) {
