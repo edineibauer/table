@@ -12,6 +12,7 @@ class Table
     private $entity;
     private $fields;
     private $search;
+    private $buttons;
 
     /**
      * Table constructor.
@@ -20,6 +21,12 @@ class Table
     public function __construct(string $entity = "")
     {
         $this->setEntity($entity);
+        $this->buttons = [
+            "edit" => true,
+            "delete" => true,
+            "copy" => true,
+            "status" => true
+        ];
     }
 
     /**
@@ -28,6 +35,20 @@ class Table
     public function setEntity($entity)
     {
         $this->entity = $entity;
+    }
+
+    public function toggleButton(string $button)
+    {
+        if (isset($this->buttons[$button]))
+            $this->buttons[$button] = !$this->buttons[$button];
+    }
+
+    /**
+     * @return array
+     */
+    public function getButtons(): array
+    {
+        return $this->buttons;
     }
 
     /**
@@ -98,12 +119,15 @@ class Table
      */
     private function getTable(): string
     {
+        $d = new Dicionario($this->entity);
         $read = new Read();
-        $read->exeRead(PRE . $this->entity, $this->getWhere(new Dicionario($this->entity)));
+        $read->exeRead(PRE . $this->entity, $this->getWhere($d));
         $dados['total'] = $read->getRowCount();
         $dados['entity'] = $this->entity;
         $dados['entityName'] = ucwords(str_replace(["_", "-", "  "], [" ", " ", " "], $this->entity));
         $dados['header'] = $this->getFields()['nome'];
+        $dados['status'] = !empty($st = $d->getInfo()['status']) ? $d->search($st)->getNome() : null;
+        $dados['buttons'] = $this->getButtons();
 
         $template = new Template("table");
         return $template->getShow("table", $dados);

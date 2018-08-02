@@ -24,9 +24,7 @@ class TableData extends Table
 
     public function __construct($entity)
     {
-        if ($entity)
-            parent::setEntity($entity);
-
+        parent::__construct($entity);
     }
 
     /**
@@ -147,6 +145,8 @@ class TableData extends Table
                 $dados['names'] = parent::getFields()['column'];
                 $dados['entity'] = parent::getEntity();
                 $dados['values'] = $this->dataMask($read->getResult());
+                $dados['buttons'] = $this->getButtons();
+                $dados['status'] = !empty($st = $d->getInfo()['status']) ? $d->search($st)->getColumn() : null;
 
                 $template = new Template('table');
                 $this->dados = $template->getShow("tableContent", $dados);
@@ -172,10 +172,6 @@ class TableData extends Table
                         break;
                     case 'source':
                         $data[$i][$field] = $this->getSource($datum[$field]);
-                        break;
-                    case 'status':
-                    case 'boolean':
-                        $data[$i][$field] = !empty($datum[$field]) && $datum[$field] ? "<span class='color-green tag'>&nbsp;ON&nbsp;</span>" : "<span class='color-orange tag color-text-white'>OFF</span>";
                         break;
                 }
             }

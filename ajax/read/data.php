@@ -7,6 +7,7 @@ $orderAsc = strip_tags(trim(filter_input(INPUT_POST, 'orderAsc', FILTER_VALIDATE
 $search = filter_input(INPUT_POST, 'search', FILTER_DEFAULT);
 
 $read = new \Table\TableData($entity);
+$read->toggleButton("copy");
 $read->setLimit($limit);
 $read->setPagina($offset);
 $read->setOrder($order);

@@ -6,7 +6,8 @@
         <span class="padding-medium color-text-grey left">
             <b id="table-total-{$entity}">{$total}</b> registros</span>
 
-        <button class="btb right theme-d2 hover-shadow opacity hover-opacity-off" id="btn-table-{$entity}" onclick="tableNovo('{$entity}')">
+        <button class="btb right theme-d2 hover-shadow opacity hover-opacity-off" id="btn-table-{$entity}"
+                onclick="tableNovo('{$entity}')">
             <i class="material-icons left">add</i><span class="left">Novo</span>
         </button>
 
@@ -26,7 +27,8 @@
             <option value="1000">1000</option>
         </select>
 
-        <span class="padding-small color-text-grey right table-cont-pag" style="margin-top: 5px;" id="table-cont-pag-{$entity}"></span>
+        <span class="padding-small color-text-grey right table-cont-pag" style="margin-top: 5px;"
+              id="table-cont-pag-{$entity}"></span>
 
     </div>
     <table class="table-all" id="table-{$entity}">
@@ -39,7 +41,13 @@
                                    style="margin: 15px 2rem 11px 0px;"/>
                         </label>
                     {/if}
-                    <span>{$item}</span>
+                    {if $item == $status}
+                        {if !$buttons.status}
+                            <span>{$item}</span>
+                        {/if}
+                    {else}
+                        <span>{$item}</span>
+                    {/if}
                 </th>
             {/foreach}
             <th class="align-right" style="padding-right: 20px;">Ações</th>

@@ -96,7 +96,8 @@ if (typeof tableNovo !== 'function') {
             entity: entity,
             limit: $("#limit-" + entity).val(),
             search: $("#search-" + entity).val(),
-            offset: $("#table-pagina-" + entity).val()
+            offset: $("#table-pagina-" + entity).val(),
+            filter: {title: $("#search-" + entity).val()}
         };
         var $table = $("#table-" + entity + " tbody");
         loadingTable(entity);
@@ -164,5 +165,10 @@ if (typeof tableNovo !== 'function') {
     }
 }
 $(function () {
-    startTable()
+    startTable();
+
+    $(".table-all").off("change", ".switch-status-table").on("change", ".switch-status-table", function () {
+        post("table", "update/status", {status: $(this).prop("checked"), id: $(this).attr("rel"), entity: $(this).attr("data-entity"), col: $(this).attr("data-status")}, function(g) {
+        });
+    });
 })
