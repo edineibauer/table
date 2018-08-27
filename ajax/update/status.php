@@ -4,6 +4,11 @@ $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
 $status = strip_tags(trim(filter_input(INPUT_POST, 'status', FILTER_VALIDATE_BOOLEAN)));
 $entity = strip_tags(trim(filter_input(INPUT_POST, 'entity', FILTER_DEFAULT)));
 $col = strip_tags(trim(filter_input(INPUT_POST, 'col', FILTER_DEFAULT)));
+$dados = [$col => ($status ? 1 : 0), "id" => $id];
 
 $up = new \ConnCrud\Update();
-$up->exeUpdate($entity, [$col => ($status ? 1 : 0)], "WHERE id = :id", "id={$id}");
+$up->exeUpdate($entity, $dados, "WHERE id = :id", "id={$id}");
+
+$dd = new \EntityForm\Dicionario($entity);
+$oldDados = $dd->getDataForm();
+new \EntityForm\React("update", $entity, $dados, $oldDados);
