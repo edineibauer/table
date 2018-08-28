@@ -73,12 +73,23 @@ class Table
     protected function getFields()
     {
         if (empty($this->fields)) {
+
             $relevants = Metadados::getRelevantAll($this->entity);
-            foreach (Metadados::getDicionario($this->entity, true) as $i => $data) {
-                if (in_array($data['format'], $relevants) && $data['form'] && (empty($this->fields) || count($this->fields['nome']) < 5)) {
-                    $this->fields['nome'][] = $data['nome'];
-                    $this->fields['column'][] = $data['column'];
-                    $this->fields['format'][] = $data['format'];
+            $d = new Dicionario($this->entity);
+            $max = 0;
+            foreach ($d->getDicionario() as $m) {
+                if ($max < $m->getIndice())
+                    $max = $m->getIndice();
+            }
+            $max++;
+
+            for ($c = 1; $c < $max; $c++) {
+                if ($meta = $d->search("indice", $c)) {
+                    if (in_array($meta->getFormat(), $relevants) && $meta->getForm() && (empty($this->fields) || count($this->fields['nome']) < 5)) {
+                        $this->fields['nome'][] = $meta->getNome();
+                        $this->fields['column'][] = $meta->getColumn();
+                        $this->fields['format'][] = $meta->getFormat();
+                    }
                 }
             }
         }

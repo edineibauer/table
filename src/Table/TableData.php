@@ -5,6 +5,7 @@ namespace Table;
 use ConnCrud\Read;
 use Entity\Entity;
 use EntityForm\Dicionario;
+use Helpers\Check;
 use Helpers\Date;
 use Helpers\DateTime;
 use Helpers\Template;
@@ -168,10 +169,33 @@ class TableData extends Table
                         $data[$i][$field] = !empty($datum[$field]) ? $datetime->getDateTime($datum[$field], "H:i\h d/m/y") : "";
                         break;
                     case 'date':
-                        $data[$i][$field] = !empty($datum[$field]) ? $date->getDate($datum[$field], "d/m/y") : "";
+                        $data[$i][$field] = !empty($datum[$field]) ? $date->getDate($datum[$field], "d/m/Y") : "";
                         break;
                     case 'source':
                         $data[$i][$field] = $this->getSource($datum[$field]);
+                        break;
+                    case 'valor':
+                        $data[$i][$field] = !empty($datum[$field]) ? "R$" . number_format($datum[$field], 2) : "";
+                        break;
+                    case 'percent':
+                        $data[$i][$field] = !empty($datum[$field]) ? $datum[$field] . "%" : "";
+                        break;
+                    case 'cpf':
+                        $data[$i][$field] = !empty($datum[$field]) ? Check::mask($datum[$field], '###.###.###-##') : "";
+                        break;
+                    case 'cep':
+                        $data[$i][$field] = !empty($datum[$field]) ? Check::mask($datum[$field], '#####-###') : "";
+                        break;
+                    case 'cnpj':
+                        $data[$i][$field] = !empty($datum[$field]) ? Check::mask($datum[$field], '##.###.###/####-##') : "";
+                        break;
+                    case 'ie':
+                        $data[$i][$field] = !empty($datum[$field]) ? Check::mask($datum[$field], '###.###.###.###') : "";
+                        break;
+                    case 'tel':
+                        $lenght = strlen($datum[$field]);
+                        $mask = ($lenght === 11 ? '(##) #####-####' : ($lenght === 10 ? '(##) ####-####' : ($lenght === 9 ? '#####-####' : '####-####')));
+                        $data[$i][$field] = !empty($datum[$field]) ? Check::mask($datum[$field], $mask) : "";
                         break;
                 }
             }
