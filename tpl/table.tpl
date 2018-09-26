@@ -17,7 +17,7 @@
         </label>
 
         <select class="right tableLimit font-small" id="limit-{$entity}" data-entity="{$entity}"
-                style="width: auto;margin-bottom: 0;margin-top: 2px;">
+                style="width: auto;margin-bottom: 0;margin-top: 1.5px;">
             <option value="15">15</option>
             <option value="25">25</option>
             <option value="50">50</option>
