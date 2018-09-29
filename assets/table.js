@@ -30,12 +30,12 @@ if (typeof tableNovo !== 'function') {
     function deleteEntityData(entity, id) {
         var $form = $("#table-" + entity);
         var cont = $form.find(".table-select:checked").length;
+        cont = (cont === 0 ? 1 : cont);
         if (confirm(cont > 1 ? "Excluir os " + cont + " Registros?" : "Excluir este Registro? ")) {
-            loadingTable(entity);
-            if (($form.find("tr").length - (cont === 0 ? 1 : cont)) === 1) {
-                resetPagination(entity);
-                readTable(entity)
-            }
+            let resultCount = $form.find("tbody").find("tr").length;
+            let page = $(".pagination").length ? parseInt($("#table-pagina-" + entity).val()) : 1;
+            page = (page < 2 ? 1 : (page - 1));
+
             if (cont > 1) {
                 $.each($form.find(".table-select"), function () {
                     if ($(this).is(":checked"))
@@ -43,6 +43,11 @@ if (typeof tableNovo !== 'function') {
                 })
             } else {
                 deleteEntityDataId(entity, id)
+            }
+
+            if ((resultCount - cont) === 0) {
+                resetPagination(entity, page);
+                readTable(entity, page);
             }
         }
     }
@@ -76,7 +81,6 @@ if (typeof tableNovo !== 'function') {
 
     function deleteEntityDataId(entity, id) {
         post('table', 'delete/data', {entity: entity, id: id}, function () {
-            clearLoadTable(entity);
             $("#row-" + entity + "-" + id).remove()
         })
     }
@@ -91,7 +95,8 @@ if (typeof tableNovo !== 'function') {
         $("#table-" + entity + " tbody").removeClass("opacity").html('')
     }
 
-    function readTable(entity) {
+    function readTable(entity, page) {
+        page = typeof page === "undefined" ? 1 : page;
         $("html").css("overflow-y", "scroll");
         let param = {
             entity: entity,
@@ -117,7 +122,10 @@ if (typeof tableNovo !== 'function') {
                             readTable(entity)
                         }
                     }
-                })
+                });
+
+                $(".pagination").find(".active").removeClass("active");
+                $(".pagination").find("li[data-page='"+ page +"']").addClass("active");
             }
         })
     }
@@ -126,9 +134,10 @@ if (typeof tableNovo !== 'function') {
         $("#table-" + entity + " tbody").addClass("opacity").append('<div class="loaderDashboard"><svg viewBox="0 0 32 32" width="32" height="32"><circle id="spinner" style="stroke: teal" cx="16" cy="16" r="14" fill="none"></circle></svg></div>')
     }
 
-    function resetPagination(entity) {
+    function resetPagination(entity, page) {
+        page = (typeof page === "undefined" ? 1 : (page < 1 ? 1 : page));
         $('#pagination-' + entity).html("");
-        $("#table-pagina-" + entity).val(1);
+        $("#table-pagina-" + entity).val(page);
         $("#table-" + entity).find(".table-select-all").prop("checked", !1)
     }
 
@@ -169,7 +178,12 @@ $(function () {
     startTable();
 
     $(".table-all").off("change", ".switch-status-table").on("change", ".switch-status-table", function () {
-        post("table", "update/status", {status: $(this).prop("checked"), id: $(this).attr("rel"), entity: $(this).attr("data-entity"), col: $(this).attr("data-status")}, function(g) {
+        post("table", "update/status", {
+            status: $(this).prop("checked"),
+            id: $(this).attr("rel"),
+            entity: $(this).attr("data-entity"),
+            col: $(this).attr("data-status")
+        }, function (g) {
         });
     });
 })
