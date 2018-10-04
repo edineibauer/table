@@ -158,18 +158,16 @@ class TableData extends Table
 
     private function dataMask($data)
     {
-        $datetime = new DateTime();
-        $date = new Date();
         foreach ($data as $i => $datum) {
             $data[$i]['permission'] = Entity::checkPermission(parent::getEntity(), $datum['id']);
             $format = parent::getFields()['format'];
             foreach (parent::getFields()['column'] as $e => $field) {
                 switch ($format[$e]) {
                     case 'datetime':
-                        $data[$i][$field] = !empty($datum[$field]) ? $datetime->getDateTime($datum[$field], "H:i\h d/m/y") : "";
+                        $data[$i][$field] = !empty($datum[$field]) ? date("H:i d/m/Y", strtotime($datum[$field])) : "";
                         break;
                     case 'date':
-                        $data[$i][$field] = !empty($datum[$field]) ? $date->getDate($datum[$field], "d/m/Y") : "";
+                        $data[$i][$field] = !empty($datum[$field]) ? date("d/m/Y", strtotime($datum[$field])) : "";
                         break;
                     case 'source':
                         $data[$i][$field] = $this->getSource($datum[$field]);
