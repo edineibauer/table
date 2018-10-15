@@ -60,6 +60,5 @@
 
     <input type="hidden" class="table-pagina-{$entity}" value="1" data-entity="{$entity}" id="table-pagina-{$entity}"/>
 
-    <script src="{$home}{$vendor}table/assets/table.min.js" defer></script>
-    <script src="{$home}{$vendor}table/assets/pagination.min.js" defer></script>
+    <script src="{$home}{$vendor}table/assets/tableCore.min.js" defer></script>
 </div>
