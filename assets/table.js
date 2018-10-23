@@ -131,7 +131,7 @@ if (typeof tableNovo !== 'function') {
     }
 
     function loadingTable(entity) {
-        $("#table-" + entity + " tbody").addClass("opacity").append('<div class="loaderDashboard"><svg viewBox="0 0 32 32" width="32" height="32"><circle id="core-spinner" style="stroke: teal" cx="16" cy="16" r="14" fill="none"></circle></svg></div>')
+        $("#table-" + entity + " tbody").addClass("opacity").append('<div class="loaderDashboard"><svg viewBox="0 0 32 32" width="32" height="32"><circle id="core-spinner" style="stroke: ' + THEME + '" cx="16" cy="16" r="14" fill="none"></circle></svg></div>')
     }
 
     function resetPagination(entity, page) {
