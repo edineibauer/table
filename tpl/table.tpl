@@ -12,6 +12,7 @@
         </button>
 
         <label class="right">
+            <input type="hidden" name="nothing">
             <input type="text" class="table-campo-geral" autocomplete="nope" id="table-campo-geral-{$entity}" data-entity="{$entity}"
                    placeholder="busca..." style="margin-bottom: 0;font-size:14px"/>
         </label>
