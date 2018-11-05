@@ -101,9 +101,9 @@ if (typeof tableNovo !== 'function') {
         let param = {
             entity: entity,
             limit: $("#limit-" + entity).val(),
-            search: $("#search-" + entity).val(),
+            search: $("#table-campo-geral-" + entity).val(),
             offset: $("#table-pagina-" + entity).val(),
-            filter: {title: $("#search-" + entity).val()}
+            filter: {title: $("#table-campo-geral-" + entity).val()}
         };
         var $table = $("#table-" + entity + " tbody");
         loadingTable(entity);
@@ -151,7 +151,7 @@ if (typeof tableNovo !== 'function') {
             resetPagination(entity);
             readTable(entity)
         });
-        $(".table-search").off("keyup change").on("keyup change", function () {
+        $(".table-campo-geral").off("keyup change").on("keyup change", function () {
             var entity = $(this).attr("data-entity");
             loadingTable(entity);
             clearTimeout(searchTime);
