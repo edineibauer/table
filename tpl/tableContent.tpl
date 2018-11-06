@@ -2,7 +2,7 @@
     <tr id="row-{$entity}-{$dado['id']}">
         {foreach item=name key=i from=$names}
             {if $format[$i] === "source"}
-                <td class="padding-16 tableImgTd" style="background-image: url(image/{$dado[$name]}&h=60&w=300);">
+                <td class="padding-16 tableImgTd" style="background-image: url(image/{$dado[$name]}&h=70&w=300);">
             {else}
                 <td class="padding-16">
             {/if}
