@@ -1,7 +1,11 @@
 {foreach $values as $dado}
     <tr id="row-{$entity}-{$dado['id']}">
         {foreach item=name key=i from=$names}
-            <td class="padding-16">
+            {if $format[$i] === "source"}
+                <td class="padding-16 tableImgTd" style="background-image: url(image/{$dado[$name]}&h=60&w=300);">
+            {else}
+                <td class="padding-16">
+            {/if}
                 {if $i === 0}
                     <label class="left">
                         <input type="checkbox" class="table-select" rel="{$dado['id']}" data-entity="{$entity}"
@@ -16,6 +20,7 @@
                             <span class='color-orange tag color-text-white'>OFF</span>
                         {/if}
                     {/if}
+                {elseif $format[$i] === "source"}
                 {else}
                     {$dado[$name]}
                 {/if}

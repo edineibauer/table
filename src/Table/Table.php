@@ -14,6 +14,7 @@ class Table
     private $fields;
     private $search;
     private $buttons;
+    private $maxColumn;
 
     /**
      * Table constructor.
@@ -21,6 +22,7 @@ class Table
      */
     public function __construct(string $entity = "")
     {
+        $this->maxColumn = 6;
         $this->setEntity($entity);
         $this->buttons = [
             "edit" => true,
@@ -42,6 +44,14 @@ class Table
     {
         if (isset($this->buttons[$button]))
             $this->buttons[$button] = !$this->buttons[$button];
+    }
+
+    /**
+     * @param int $maxColumn
+     */
+    public function setMaxColumn(int $maxColumn)
+    {
+        $this->maxColumn = $maxColumn;
     }
 
     /**
@@ -69,6 +79,14 @@ class Table
     }
 
     /**
+     * @return int
+     */
+    public function getMaxColumn(): int
+    {
+        return $this->maxColumn;
+    }
+
+    /**
      * @return mixed
      */
     protected function getFields()
@@ -77,16 +95,21 @@ class Table
 
             $relevants = Metadados::getRelevantAll($this->entity);
             $d = new Dicionario($this->entity);
-            $max = 0;
-            foreach ($d->getDicionario() as $m) {
-                if ($max < $m->getIndice())
-                    $max = $m->getIndice();
-            }
-            $max++;
+            $info = $d->getInfo();
 
-            for ($c = 1; $c < $max; $c++) {
-                if ($meta = $d->search("indice", $c)) {
-                    if (in_array($meta->getFormat(), $relevants) && $meta->getForm() && (empty($this->fields) || count($this->fields['nome']) < 5)) {
+            // DataGrid Position
+            for ($i = 1; $i < $this->maxColumn + 1; $i++) {
+                if ($meta = $d->search("datagrid", ['relevant' => $i])) {
+                    $this->fields['nome'][] = $meta->getNome();
+                    $this->fields['column'][] = $meta->getColumn();
+                    $this->fields['format'][] = $meta->getFormat();
+                }
+            }
+
+            // Relevant Column
+            foreach ($relevants as $relevant) {
+                if (!empty($info[$relevant]) && $meta = $d->search($info[$relevant])) {
+                    if (!empty($meta->getDatagrid()) && (empty($this->fields) || count($this->fields['nome']) < $this->maxColumn)) {
                         $this->fields['nome'][] = $meta->getNome();
                         $this->fields['column'][] = $meta->getColumn();
                         $this->fields['format'][] = $meta->getFormat();
@@ -141,7 +164,7 @@ class Table
         $dados['status'] = !empty($st = $d->getInfo()['status']) ? $d->search($st)->getNome() : null;
         $dados['buttons'] = $this->getButtons();
 
-        if(!file_exists(PATH_HOME . VENDOR . "table/assets/tableCore.min.js")) {
+        if (!file_exists(PATH_HOME . VENDOR . "table/assets/tableCore.min.js")) {
             $minifier = new Minify\JS(file_get_contents(PATH_HOME . VENDOR . "table/assets/table.js"));
             $minifier->add(file_get_contents(PATH_HOME . VENDOR . "table/assets/pagination.js"));
             $minifier->minify(PATH_HOME . VENDOR . "table/assets/tableCore.min.js");

@@ -5,6 +5,12 @@
     height:35px;
 }
 
+.tableImgTd {
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 96%;
+}
+
 .textEditableField {
     float: left!important;
     height: 35px;

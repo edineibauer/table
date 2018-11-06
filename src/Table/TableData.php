@@ -144,6 +144,7 @@ class TableData extends Table
                 $this->response = true;
 
                 $dados['names'] = parent::getFields()['column'];
+                $dados['format'] = parent::getFields()['format'];
                 $dados['entity'] = parent::getEntity();
                 $dados['values'] = $this->dataMask($read->getResult());
                 $dados['buttons'] = $this->getButtons();
@@ -208,7 +209,7 @@ class TableData extends Table
             $value = json_decode($value, true);
 
             if (preg_match('/^image\//i', $value[0]['type']))
-                return "<img src='{$value[0]['url']}' title='{$value[0]['name']}' height='30' style='height: 30px;width: auto' />";
+                return str_replace('\\', '/', $value[0]['url']);
 
             return "";
         }
