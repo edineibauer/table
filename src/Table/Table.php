@@ -22,7 +22,7 @@ class Table
      */
     public function __construct(string $entity = "")
     {
-        $this->maxColumn = 6;
+        $this->maxColumn = 5;
         $this->setEntity($entity);
         $this->buttons = [
             "edit" => true,
