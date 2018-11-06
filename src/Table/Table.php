@@ -109,7 +109,7 @@ class Table
             // Relevant Column
             foreach ($relevants as $relevant) {
                 if (!empty($info[$relevant]) && $meta = $d->search($info[$relevant])) {
-                    if (!empty($meta->getDatagrid()) && (empty($this->fields) || count($this->fields['nome']) < $this->maxColumn)) {
+                    if (!empty($meta->getDatagrid()) && !in_array($meta->getNome(), $this->fields['nome']) && (empty($this->fields) || count($this->fields['nome']) < $this->maxColumn)) {
                         $this->fields['nome'][] = $meta->getNome();
                         $this->fields['column'][] = $meta->getColumn();
                         $this->fields['format'][] = $meta->getFormat();
