@@ -143,10 +143,10 @@ class TableData extends Table
                 $this->count = $read->getRowCount();
                 $this->response = true;
 
-                $dados['entity'] = parent::getEntity();
-                $dados['values'] = $this->readDataTable($read->getResult());
-                $dados['buttons'] = $this->getButtons();
                 $dados['status'] = !empty($st = $d->getInfo()['status']) ? $d->search($st)->getColumn() : null;
+                $dados['entity'] = parent::getEntity();
+                $dados['values'] = $this->readDataTable($read->getResult(), $dados['status']);
+                $dados['buttons'] = $this->getButtons();
 
                 $template = new Template('table');
                 $this->dados = $template->getShow("tableContent", $dados);
@@ -155,7 +155,7 @@ class TableData extends Table
         }
     }
 
-    private function readDataTable($data)
+    private function readDataTable($data, $status)
     {
         $relation = json_decode(file_get_contents(PATH_HOME . "entity/general/general_info.json"), true);
         $fields = parent::getFields();
@@ -165,6 +165,7 @@ class TableData extends Table
         foreach ($data as $i => $datum) {
             $tableData[$i]['tdInfo']['tableAllowPermission'] = Entity::checkPermission(parent::getEntity(), $datum['id']);
             $tableData[$i]['tdInfo']['id'] = $datum['id'];
+            $tableData[$i]['tdInfo']['status'] = !empty($status) ? $datum[$status] : null;
 
             /* Realiza leitura em dados relacionais Multiplos */
             if (!empty($relation[parent::getEntity()]['belongsTo'])) {

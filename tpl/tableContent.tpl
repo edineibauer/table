@@ -53,7 +53,7 @@
                     <div class="switch switch-squad margin-0 margin-right">
                         <input type="checkbox" class="switch-status-table" data-status="{$status}"
                                data-entity="{$entity}" rel="{$dado.tdInfo.id}"
-                                {($dado[$status]) ? "checked='checked' " : "" }
+                                {($dado.tdInfo.status) ? "checked='checked' " : "" }
                                class="switchCheck"/>
                         <div class="slider"></div>
                     </div>
