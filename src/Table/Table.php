@@ -94,15 +94,30 @@ class Table
         if (empty($this->fields)) {
 
             $relevants = Metadados::getRelevantAll($this->entity);
+            $relation = json_decode(file_get_contents(PATH_HOME . "entity/general/general_info.json"), true);
             $d = new Dicionario($this->entity);
             $info = $d->getInfo();
 
             // DataGrid Position
             for ($i = 1; $i < $this->maxColumn + 1; $i++) {
-                if ($meta = $d->search("datagrid", ['relevant' => $i])) {
+                if ($meta = $d->search("datagrid", ['grid_relevant' => $i])) {
                     $this->fields['nome'][] = $meta->getNome();
                     $this->fields['column'][] = $meta->getColumn();
                     $this->fields['format'][] = $meta->getFormat();
+                } else {
+
+                    // Check DataGrid Relation Position
+                    if (!empty($relation[$this->entity]['belongsTo'])) {
+                        foreach ($relation[$this->entity]['belongsTo'] as $bel) {
+                            foreach ($bel as $belEntity => $belData) {
+                                if (!empty($belData['datagrid']) && $belData['datagrid'] == $i) {
+                                    $this->fields['nome'][] = ucwords(str_replace(['-', '_'], ' ', $belEntity));
+                                    $this->fields['column'][] = $belEntity;
+                                    $this->fields['format'][] = 'text';
+                                }
+                            }
+                        }
+                    }
                 }
             }
 

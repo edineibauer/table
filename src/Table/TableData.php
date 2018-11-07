@@ -138,7 +138,7 @@ class TableData extends Table
             $this->total = $this->getMaximo($where);
 
             $read = new Read();
-            $read->exeRead(PRE . parent::getEntity(), $where . " " . $this->getOrder());
+            $read->exeRead(parent::getEntity(), $where . " " . $this->getOrder());
             if ($read->getResult()) {
                 $this->count = $read->getRowCount();
                 $this->response = true;
@@ -159,9 +159,38 @@ class TableData extends Table
 
     private function dataMask($data)
     {
+        $relation = json_decode(file_get_contents(PATH_HOME . "entity/general/general_info.json"), true);
+
         foreach ($data as $i => $datum) {
             $data[$i]['permission'] = Entity::checkPermission(parent::getEntity(), $datum['id']);
             $format = parent::getFields()['format'];
+
+            if (!empty($relation[parent::getEntity()]['belongsTo'])) {
+                $read = new Read();
+
+                foreach ($relation[parent::getEntity()]['belongsTo'] as $bel) {
+                    foreach ($bel as $belEntity => $belData) {
+                        if (!empty($belData['datagrid'])) {
+                            $data[$i][$belEntity] = "";
+                            if(in_array($belData['key'], ['list_mult', 'selecao_mult', 'extend_mult', 'checkbox_mult'])) {
+                                $read->exeRead($belEntity . "_" . parent::getEntity(), "WHERE " . parent::getEntity() . "_id = :pid", "pid={$datum['id']}");
+                                if($read->getResult()) {
+                                    foreach ($read->getResult() as $relData) {
+                                        $read->exeRead($belEntity, "WHERE id = :bb", "bb={$relData[$belEntity . '_id']}");
+                                        if($read->getResult())
+                                            $data[$i][$belEntity] .= (!empty($data[$i][$belEntity]) ? "<br>" : "") . $read->getResult()[0][$belData['relevant']];
+                                    }
+                                }
+                            } else {
+                                $read->exeRead($belEntity, "WHERE {$belData['column']} = :bb", "bb={$datum['id']}");
+                                if($read->getResult())
+                                    $data[$i][$belEntity] = $read->getResult()[0][$belData['relevant']];
+                            }
+                        }
+                    }
+                }
+            }
+
             foreach (parent::getFields()['column'] as $e => $field) {
                 switch ($format[$e]) {
                     case 'datetime':
