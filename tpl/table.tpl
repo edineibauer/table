@@ -35,19 +35,22 @@
     <table class="table-all" id="table-{$entity}">
         <thead>
         <tr>
-            {foreach item=item key=i from=$header}
-                <th>{if $i === 0}
+            {$first = 0}
+            {foreach item=item key=column from=$header}
+                <th>
+                    {if $first == 0}
+                        {$first = 1}
                         <label class="left">
                             <input type="checkbox" class="table-select-all" data-entity="{$entity}"
                                    style="margin: 15px 2rem 11px 0px;"/>
                         </label>
                     {/if}
-                    {if $item == $status}
+                    {if $column == $status}
                         {if !$buttons.status}
-                            <span>{$item}</span>
+                            <span>{$item.nome}</span>
                         {/if}
                     {else}
-                        <span>{$item}</span>
+                        <span>{$item.nome}</span>
                     {/if}
                 </th>
             {/foreach}

@@ -143,10 +143,8 @@ class TableData extends Table
                 $this->count = $read->getRowCount();
                 $this->response = true;
 
-                $dados['names'] = parent::getFields()['column'];
-                $dados['format'] = parent::getFields()['format'];
                 $dados['entity'] = parent::getEntity();
-                $dados['values'] = $this->dataMask($read->getResult());
+                $dados['values'] = $this->readDataTable($read->getResult());
                 $dados['buttons'] = $this->getButtons();
                 $dados['status'] = !empty($st = $d->getInfo()['status']) ? $d->search($st)->getColumn() : null;
 
@@ -157,96 +155,113 @@ class TableData extends Table
         }
     }
 
-    private function dataMask($data)
+    private function readDataTable($data)
     {
         $relation = json_decode(file_get_contents(PATH_HOME . "entity/general/general_info.json"), true);
-        $format = parent::getFields()['format'];
-        $relationsEntity = parent::getFields()['relation'];
+        $fields = parent::getFields();
         $read = new Read();
+        $tableData = [];
 
         foreach ($data as $i => $datum) {
-            $data[$i]['permission'] = Entity::checkPermission(parent::getEntity(), $datum['id']);
+            $tableData[$i]['tdInfo']['tableAllowPermission'] = Entity::checkPermission(parent::getEntity(), $datum['id']);
+            $tableData[$i]['tdInfo']['id'] = $datum['id'];
 
+            /* Realiza leitura em dados relacionais Multiplos */
             if (!empty($relation[parent::getEntity()]['belongsTo'])) {
                 foreach ($relation[parent::getEntity()]['belongsTo'] as $bel) {
                     foreach ($bel as $belEntity => $belData) {
                         if (!empty($belData['datagrid'])) {
-                            $data[$i][$belEntity] = "";
+                            $datum[$belEntity] = "";
                             if(in_array($belData['key'], ['list_mult', 'selecao_mult', 'extend_mult', 'checkbox_mult'])) {
                                 $read->exeRead($belEntity . "_" . parent::getEntity(), "WHERE " . parent::getEntity() . "_id = :pid", "pid={$datum['id']}");
                                 if($read->getResult()) {
                                     foreach ($read->getResult() as $relData) {
                                         $read->exeRead($belEntity, "WHERE id = :bb", "bb={$relData[$belEntity . '_id']}");
                                         if($read->getResult())
-                                            $data[$i][$belEntity] .= (!empty($data[$i][$belEntity]) ? "<br>" : "") . $read->getResult()[0][$belData['relevant']];
+                                            $datum[$belEntity] .= (!empty($datum[$belEntity]) ? "<br>" : "") . $read->getResult()[0][$belData['relevant']];
                                     }
                                 }
                             } else {
                                 $read->exeRead($belEntity, "WHERE {$belData['column']} = :bb", "bb={$datum['id']}");
                                 if($read->getResult())
-                                    $data[$i][$belEntity] = $read->getResult()[0][$belData['relevant']];
+                                    $datum[$belEntity] = $read->getResult()[0][$belData['relevant']];
                             }
                         }
                     }
                 }
             }
 
-            foreach (parent::getFields()['column'] as $e => $field) {
-                switch ($format[$e]) {
-                    case 'datetime':
-                        $data[$i][$field] = !empty($datum[$field]) ? date("H:i d/m/Y", strtotime($datum[$field])) : "";
-                        break;
-                    case 'date':
-                        $data[$i][$field] = !empty($datum[$field]) ? date("d/m/Y", strtotime($datum[$field])) : "";
-                        break;
-                    case 'source':
-                        $data[$i][$field] = $this->getSource($datum[$field]);
-                        break;
-                    case 'valor':
-                        $data[$i][$field] = !empty($datum[$field]) ? "R$" . number_format($datum[$field], 2) : "";
-                        break;
-                    case 'percent':
-                        $data[$i][$field] = !empty($datum[$field]) ? $datum[$field] . "%" : "";
-                        break;
-                    case 'cpf':
-                        $data[$i][$field] = !empty($datum[$field]) ? Check::mask($datum[$field], '###.###.###-##') : "";
-                        break;
-                    case 'cep':
-                        $data[$i][$field] = !empty($datum[$field]) ? Check::mask($datum[$field], '#####-###') : "";
-                        break;
-                    case 'cnpj':
-                        $data[$i][$field] = !empty($datum[$field]) ? Check::mask($datum[$field], '##.###.###/####-##') : "";
-                        break;
-                    case 'ie':
-                        $data[$i][$field] = !empty($datum[$field]) ? Check::mask($datum[$field], '###.###.###.###') : "";
-                        break;
-                    case 'list':
-                    case 'selecao':
-                    case 'extend':
-                    case 'extend_add':
-                    case 'checkbox_rel':
-                        $data[$i][$field] = "";
-                        if(!empty($relationsEntity[$field]) && !empty($datum[$field])) {
-                            $dic = new Dicionario($relationsEntity[$field]);
-                            $relev = $dic->getRelevant();
-                            $read->exeRead($relationsEntity[$field], "WHERE id = :ri", "ri={$datum[$field]}");
-                            if ($read->getResult())
-                                $data[$i][$field] = $read->getResult()[0][$relev->getColumn()];
-                        }
-                        break;
-                    case 'tel':
-                        $lenght = strlen($datum[$field]);
-                        $mask = ($lenght === 11 ? '(##) #####-####' : ($lenght === 10 ? '(##) ####-####' : ($lenght === 9 ? '#####-####' : '####-####')));
-                        $data[$i][$field] = !empty($datum[$field]) ? Check::mask($datum[$field], $mask) : "";
-                        break;
-                }
-            }
+            /* Para cada Dado (TD), aplica os filtros necessários */
+            foreach ($fields as $column => $nome)
+                $tableData[$i][$column] = $this->applyFilterToTd($datum[$column], $fields[$column]);
         }
 
-        return $data;
+        return $tableData;
     }
 
-    private function getSource($value)
+    /**
+     * Converte dados TD para uso no template table data
+     * @param $value
+     * @param array $fields
+     */
+    private function applyFilterToTd($value, array $fields)
+    {
+        return [
+            'template' => $fields['template'],
+            'style' => $fields['style'],
+            'class' => $fields['class'],
+            'format' => $fields['format'],
+            'value' => $this->getValueFrom($fields['format'], $fields['relation'], $value)
+        ];
+    }
+
+    /**
+     * @param string $format
+     * @param string|null $relation
+     * @param $value
+     */
+    private function getValueFrom(string $format, $relation, $value)
+    {
+        switch ($format) {
+            case 'datetime':
+                return !empty($value) ? date("H:i d/m/Y", strtotime($value)) : "";
+            case 'date':
+                return !empty($value) ? date("d/m/Y", strtotime($value)) : "";
+            case 'source':
+                return $this->getSourceValue($value);
+            case 'valor':
+                return !empty($value) ? "R$" . number_format($value, 2) : "";
+            case 'percent':
+                return !empty($value) ? $value . "%" : "";
+            case 'cpf':
+                return !empty($value) ? Check::mask($value, '###.###.###-##') : "";
+            case 'cep':
+                return !empty($value) ? Check::mask($value, '#####-###') : "";
+            case 'cnpj':
+                return !empty($value) ? Check::mask($value, '##.###.###/####-##') : "";
+            case 'ie':
+                return !empty($value) ? Check::mask($value, '###.###.###.###') : "";
+            case 'list':
+            case 'selecao':
+            case 'extend':
+            case 'extend_add':
+            case 'checkbox_rel':
+                return $this->getSingleRelationValue($value, $relation);
+            case 'tel':
+                $lenght = strlen($value);
+                $mask = ($lenght === 11 ? '(##) #####-####' : ($lenght === 10 ? '(##) ####-####' : ($lenght === 9 ? '#####-####' : '####-####')));
+                return !empty($value) ? Check::mask($value, $mask) : "";
+            default:
+                return $value;
+        }
+    }
+
+    /**
+     * Obtém o valor de um Source
+     * @param $value
+     * @return mixed|string
+     */
+    private function getSourceValue($value)
     {
         if (!empty($value)) {
             $value = json_decode($value, true);
@@ -255,6 +270,25 @@ class TableData extends Table
                 return str_replace('\\', '/', $value[0]['url']);
 
             return "";
+        }
+
+        return "";
+    }
+
+    /**
+     * Obtém o valor relevante de uma relação simples
+     * @param int $value
+     * @param string $relation
+     * @return string
+     */
+    private function getSingleRelationValue(int $value, string $relation)
+    {
+        if(!empty($relation) && !empty($value)) {
+            $dic = new Dicionario($relation);
+            $relev = $dic->getRelevant();
+            $read->exeRead($relation, "WHERE id = :ri", "ri={$value}");
+            if ($read->getResult() && !empty($relev))
+                return $read->getResult()[0][$relev->getColumn()];
         }
 
         return "";

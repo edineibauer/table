@@ -101,10 +101,13 @@ class Table
             // DataGrid Position
             for ($i = 1; $i < $this->maxColumn + 1; $i++) {
                 if ($meta = $d->search("datagrid", ['grid_relevant' => $i])) {
-                    $this->fields['nome'][] = $meta->getNome();
-                    $this->fields['column'][] = $meta->getColumn();
-                    $this->fields['format'][] = $meta->getFormat();
-                    $this->fields['relation'][$meta->getColumn()] = !empty($meta->getRelation()) ? $meta->getRelation() : null;
+                    $column = $meta->getColumn();
+                    $this->fields[$column]['nome'] = $meta->getNome();
+                    $this->fields[$column]['class'] = $meta->getDatagrid()['grid_class'] ?? "";
+                    $this->fields[$column]['style'] = $meta->getDatagrid()['grid_style'] ?? "";
+                    $this->fields[$column]['template'] = $meta->getDatagrid()['grid_template'] ?? "";
+                    $this->fields[$column]['format'] = $meta->getFormat();
+                    $this->fields[$column]['relation'] = !empty($meta->getRelation()) ? $meta->getRelation() : null;
                 } else {
 
                     // Check DataGrid Relation Position
@@ -112,10 +115,12 @@ class Table
                         foreach ($relation[$this->entity]['belongsTo'] as $bel) {
                             foreach ($bel as $belEntity => $belData) {
                                 if (!empty($belData['datagrid']) && $belData['datagrid'] == $i) {
-                                    $this->fields['nome'][] = ucwords(str_replace(['-', '_'], ' ', $belEntity));
-                                    $this->fields['column'][] = $belEntity;
-                                    $this->fields['format'][] = 'text';
-                                    $this->fields['relation'][$belEntity] = $belEntity;
+                                    $this->fields[$belEntity]['nome'] = ucwords(str_replace(['-', '_'], ' ', $belEntity));
+                                    $this->fields[$belEntity]['class'] = $belData['grid_class_relational'] ?? "";
+                                    $this->fields[$belEntity]['style'] = $belData['grid_style_relational'] ?? "";
+                                    $this->fields[$belEntity]['template'] = $belData['grid_template_relational'] ?? "";
+                                    $this->fields[$belEntity]['format'] = 'text';
+                                    $this->fields[$belEntity]['relation'] = $belEntity;
                                 }
                             }
                         }
@@ -126,11 +131,14 @@ class Table
             // Relevant Column
             foreach ($relevants as $relevant) {
                 if (!empty($info[$relevant]) && $meta = $d->search($info[$relevant])) {
-                    if (!empty($meta->getDatagrid()) && (empty($this->fields) || (count($this->fields['nome']) < $this->maxColumn && !in_array($meta->getNome(), $this->fields['nome'])))) {
-                        $this->fields['nome'][] = $meta->getNome();
-                        $this->fields['column'][] = $meta->getColumn();
-                        $this->fields['format'][] = $meta->getFormat();
-                        $this->fields['relation'][$meta->getColumn()] = !empty($meta->getRelation()) ? $meta->getRelation() : null;
+                    if (!empty($meta->getDatagrid()) && (empty($this->fields) || (count($this->fields) < $this->maxColumn && !in_array($meta->getColumn(), array_keys($this->fields))))) {
+                        $column = $meta->getColumn();
+                        $this->fields[$column]['nome'] = $meta->getNome();
+                        $this->fields[$column]['class'] = $meta->getDatagrid()['grid_class'] ?? "";
+                        $this->fields[$column]['style'] = $meta->getDatagrid()['grid_style'] ?? "";
+                        $this->fields[$column]['template'] = $meta->getDatagrid()['grid_template'] ?? "";
+                        $this->fields[$column]['format'] = $meta->getFormat();
+                        $this->fields[$column]['relation'] = !empty($meta->getRelation()) ? $meta->getRelation() : null;
                     }
                 }
             }
@@ -178,7 +186,7 @@ class Table
         $dados['total'] = $read->getRowCount();
         $dados['entity'] = $this->entity;
         $dados['entityName'] = ucwords(str_replace(["_", "-", "  "], [" ", " ", " "], $this->entity));
-        $dados['header'] = $this->getFields()['nome'];
+        $dados['header'] = $this->getFields();
         $dados['status'] = !empty($st = $d->getInfo()['status']) ? $d->search($st)->getNome() : null;
         $dados['buttons'] = $this->getButtons();
 
