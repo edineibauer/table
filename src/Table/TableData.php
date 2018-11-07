@@ -160,14 +160,14 @@ class TableData extends Table
     private function dataMask($data)
     {
         $relation = json_decode(file_get_contents(PATH_HOME . "entity/general/general_info.json"), true);
+        $format = parent::getFields()['format'];
+        $relationsEntity = parent::getFields()['relation'];
+        $read = new Read();
 
         foreach ($data as $i => $datum) {
             $data[$i]['permission'] = Entity::checkPermission(parent::getEntity(), $datum['id']);
-            $format = parent::getFields()['format'];
 
             if (!empty($relation[parent::getEntity()]['belongsTo'])) {
-                $read = new Read();
-
                 foreach ($relation[parent::getEntity()]['belongsTo'] as $bel) {
                     foreach ($bel as $belEntity => $belData) {
                         if (!empty($belData['datagrid'])) {
@@ -219,6 +219,20 @@ class TableData extends Table
                         break;
                     case 'ie':
                         $data[$i][$field] = !empty($datum[$field]) ? Check::mask($datum[$field], '###.###.###.###') : "";
+                        break;
+                    case 'list':
+                    case 'selecao':
+                    case 'extend':
+                    case 'extend_add':
+                    case 'checkbox_rel':
+                        $data[$i][$field] = "";
+                        if(!empty($relationsEntity[$field]) && !empty($datum[$field])) {
+                            $dic = new Dicionario($relationsEntity[$field]);
+                            $relev = $dic->getRelevant();
+                            $read->exeRead($relationsEntity[$field], "WHERE id = :ri", "ri={$datum[$field]}");
+                            if ($read->getResult())
+                                $data[$i][$field] = $read->getResult()[0][$relev->getColumn()];
+                        }
                         break;
                     case 'tel':
                         $lenght = strlen($datum[$field]);

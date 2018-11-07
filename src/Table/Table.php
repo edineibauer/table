@@ -104,6 +104,7 @@ class Table
                     $this->fields['nome'][] = $meta->getNome();
                     $this->fields['column'][] = $meta->getColumn();
                     $this->fields['format'][] = $meta->getFormat();
+                    $this->fields['relation'][$meta->getColumn()] = !empty($meta->getRelation()) ? $meta->getRelation() : null;
                 } else {
 
                     // Check DataGrid Relation Position
@@ -114,6 +115,7 @@ class Table
                                     $this->fields['nome'][] = ucwords(str_replace(['-', '_'], ' ', $belEntity));
                                     $this->fields['column'][] = $belEntity;
                                     $this->fields['format'][] = 'text';
+                                    $this->fields['relation'][$belEntity] = $belEntity;
                                 }
                             }
                         }
@@ -128,6 +130,7 @@ class Table
                         $this->fields['nome'][] = $meta->getNome();
                         $this->fields['column'][] = $meta->getColumn();
                         $this->fields['format'][] = $meta->getFormat();
+                        $this->fields['relation'][$meta->getColumn()] = !empty($meta->getRelation()) ? $meta->getRelation() : null;
                     }
                 }
             }
