@@ -22,7 +22,7 @@ class Table
      */
     public function __construct(string $entity = "")
     {
-        $this->maxColumn = 5;
+        $this->maxColumn = 4;
         $this->setEntity($entity);
         $this->buttons = [
             "edit" => true,
@@ -99,7 +99,7 @@ class Table
             $info = $d->getInfo();
 
             // DataGrid Position
-            for ($i = 1; $i < $this->maxColumn + 1; $i++) {
+            for ($i = 1; $i < 7 + 1; $i++) {
                 if ($meta = $d->search("datagrid", ['grid_relevant' => $i])) {
                     $column = $meta->getColumn();
                     $this->fields[$column]['nome'] = $meta->getNome();
