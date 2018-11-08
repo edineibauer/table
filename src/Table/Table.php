@@ -131,12 +131,12 @@ class Table
             // Relevant Column
             foreach ($relevants as $relevant) {
                 if (!empty($info[$relevant]) && $meta = $d->search($info[$relevant])) {
-                    if (!empty($meta->getDatagrid()) && (empty($this->fields) || (count($this->fields) < $this->maxColumn && !in_array($meta->getColumn(), array_keys($this->fields))))) {
+                    if (empty($this->fields) || (count($this->fields) < $this->maxColumn && !in_array($meta->getColumn(), array_keys($this->fields)))) {
                         $column = $meta->getColumn();
                         $this->fields[$column]['nome'] = $meta->getNome();
-                        $this->fields[$column]['class'] = $meta->getDatagrid()['grid_class'] ?? "";
-                        $this->fields[$column]['style'] = $meta->getDatagrid()['grid_style'] ?? "";
-                        $this->fields[$column]['template'] = $meta->getDatagrid()['grid_template'] ?? "";
+                        $this->fields[$column]['class'] = !empty($meta->getDatagrid()['grid_class']) ? $meta->getDatagrid()['grid_class'] : "";
+                        $this->fields[$column]['style'] = !empty($meta->getDatagrid()['grid_style']) ? $meta->getDatagrid()['grid_style'] : "";
+                        $this->fields[$column]['template'] = !empty($meta->getDatagrid()['grid_template']) ? $meta->getDatagrid()['grid_template'] : "";
                         $this->fields[$column]['format'] = $meta->getFormat();
                         $this->fields[$column]['relation'] = !empty($meta->getRelation()) ? $meta->getRelation() : null;
                     }
