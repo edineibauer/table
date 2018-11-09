@@ -11,13 +11,13 @@
   ],
   "require": {
     "php": "^7.1",
-    "conn/helpers": "1.5.*",
-    "conn/form-crud": "1.8.*",
+    "conn/helpers": "*",
+    "conn/form-crud": "*",
     "matthiasmullie/minify": "1.3.*"
   },
   "autoload": {
     "psr-0": {
-      "Table": "src/"
+      "Table": "public/src/"
     }
   }
 }
