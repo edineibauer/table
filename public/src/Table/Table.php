@@ -190,10 +190,15 @@ class Table
         $dados['status'] = !empty($st = $d->getInfo()['status']) ? $d->search($st)->getNome() : null;
         $dados['buttons'] = $this->getButtons();
 
-        if (!file_exists(PATH_HOME . VENDOR . "table/public/assets/tableCore.min.js")) {
+        if (!file_exists(PATH_HOME . "assetsPublic/tableCore.min.js")) {
             $minifier = new Minify\JS(file_get_contents(PATH_HOME . VENDOR . "table/public/assets/table.js"));
             $minifier->add(file_get_contents(PATH_HOME . VENDOR . "table/public/assets/pagination.js"));
-            $minifier->minify(PATH_HOME . VENDOR . "table/public/assets/tableCore.min.js");
+            $minifier->minify(PATH_HOME . VENDOR . "assetsPublic/tableCore.min.js");
+        }
+
+        if (!file_exists(PATH_HOME . "assetsPublic/tableCore.min.css")) {
+            $minifier = new Minify\JS(file_get_contents(PATH_HOME . VENDOR . "table/public/assets/table.css"));
+            $minifier->minify(PATH_HOME . VENDOR . "assetsPublic/tableCore.min.css");
         }
 
         $template = new Template("table");
