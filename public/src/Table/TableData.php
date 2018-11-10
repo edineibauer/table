@@ -4,10 +4,8 @@ namespace Table;
 
 use ConnCrud\Read;
 use Entity\Entity;
-use EntityForm\Dicionario;
+use Entity\Dicionario;
 use Helpers\Check;
-use Helpers\Date;
-use Helpers\DateTime;
 use Helpers\Template;
 
 class TableData extends Table

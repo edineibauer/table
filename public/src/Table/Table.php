@@ -3,8 +3,8 @@
 namespace Table;
 
 use ConnCrud\Read;
-use EntityForm\Dicionario;
-use EntityForm\Metadados;
+use Entity\Dicionario;
+use Entity\Metadados;
 use Helpers\Template;
 use MatthiasMullie\Minify;
 
