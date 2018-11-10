@@ -9,6 +9,6 @@ $dados = [$col => ($status ? 1 : 0), "id" => $id];
 $up = new \ConnCrud\Update();
 $up->exeUpdate($entity, $dados, "WHERE id = :id", "id={$id}");
 
-$dd = new \EntityForm\Dicionario($entity);
+$dd = new \Entity\Dicionario($entity);
 $oldDados = $dd->getDataForm();
-new \EntityForm\React("update", $entity, $dados, $oldDados);
+new \Entity\React("update", $entity, $dados, $oldDados);
