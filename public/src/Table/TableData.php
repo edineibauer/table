@@ -245,7 +245,7 @@ class TableData extends Table
             case 'extend':
             case 'extend_add':
             case 'checkbox_rel':
-                return $this->getSingleRelationValue($value, $relation);
+                return $this->getSingleRelationValue($value ?? 0, $relation);
             case 'tel':
                 $lenght = strlen($value);
                 $mask = ($lenght === 11 ? '(##) #####-####' : ($lenght === 10 ? '(##) ####-####' : ($lenght === 9 ? '#####-####' : '####-####')));
@@ -285,6 +285,7 @@ class TableData extends Table
         if(!empty($relation) && !empty($value)) {
             $dic = new Dicionario($relation);
             $relev = $dic->getRelevant();
+            $read = new Read();
             $read->exeRead($relation, "WHERE id = :ri", "ri={$value}");
             if ($read->getResult() && !empty($relev))
                 return $read->getResult()[0][$relev->getColumn()];
