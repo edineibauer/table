@@ -3,6 +3,7 @@
 namespace Table;
 
 use ConnCrud\Read;
+use ConnCrud\SqlCommand;
 use Entity\Entity;
 use Entity\Dicionario;
 use Helpers\Check;
@@ -158,6 +159,7 @@ class TableData extends Table
         $relation = json_decode(file_get_contents(PATH_HOME . "entity/general/general_info.json"), true);
         $fields = parent::getFields();
         $read = new Read();
+        $sql = new SqlCommand();
         $tableData = [];
 
         foreach ($data as $i => $datum) {
@@ -171,18 +173,17 @@ class TableData extends Table
                     foreach ($bel as $belEntity => $belData) {
                         if (!empty($belData['datagrid'])) {
                             $datum[$belEntity] = "";
-                            if(in_array($belData['key'], ['list_mult', 'selecao_mult', 'extend_mult', 'checkbox_mult'])) {
-                                $read->exeRead($belEntity . "_" . parent::getEntity(), "WHERE " . parent::getEntity() . "_id = :pid", "pid={$datum['id']}");
-                                if($read->getResult()) {
-                                    foreach ($read->getResult() as $relData) {
-                                        $read->exeRead($belEntity, "WHERE id = :bb", "bb={$relData[$belEntity . '_id']}");
-                                        if($read->getResult())
-                                            $datum[$belEntity] .= (!empty($datum[$belEntity]) ? "<br>" : "") . $read->getResult()[0][$belData['relevant']];
-                                    }
+                            if (in_array($belData['key'], ['list_mult', 'selecao_mult', 'extend_mult', 'checkbox_mult'])) {
+
+                                $sql->exeCommand("SELECT a.{$belData['relevant']} FROM " . PRE . $belEntity . " as a JOIN " . PRE . $belEntity . "_" . $belData['column'] . " as r 
+                                ON r.{$belEntity}_id = a.id WHERE r." . parent::getEntity() . "_id = {$datum['id']}");
+                                if($sql->getResult()) {
+                                    foreach ($sql->getResult() as $item)
+                                        $datum[$belEntity] .= (!empty($datum[$belEntity]) ? "<br>" : "") . $item[$belData['relevant']];
                                 }
                             } else {
                                 $read->exeRead($belEntity, "WHERE {$belData['column']} = :bb", "bb={$datum['id']}");
-                                if($read->getResult())
+                                if ($read->getResult())
                                     $datum[$belEntity] = $read->getResult()[0][$belData['relevant']];
                             }
                         }
@@ -191,8 +192,22 @@ class TableData extends Table
             }
 
             /* Para cada Dado (TD), aplica os filtros necessários */
-            foreach ($fields as $column => $nome)
-                $tableData[$i][$column] = $this->applyFilterToTd($datum[$column], $fields[$column]);
+            foreach ($fields as $column => $info) {
+                if(in_array($info['format'], ['list_mult', 'selecao_mult', 'extend_mult', 'checkbox_mult'])) {
+                    $datum[$column] = "";
+                    $dd = new Dicionario($info['relation']);
+                    $columnRelevation = $dd->getRelevant()->getColumn();
+
+                    $sql->exeCommand("SELECT r.{$columnRelevation} FROM " . PRE . $info['relation'] . " as r JOIN " . PRE . parent::getEntity() . "_" . $column . " as s
+                    ON s." . $info['relation']. "_id = r.id WHERE s." . parent::getEntity() . "_id = {$datum['id']}");
+                    if($sql->getResult()){
+                        foreach ($sql->getResult() as $itemData)
+                            $datum[$column] .= (!empty($datum[$column]) ? "<br>" : "") . $itemData[$columnRelevation];
+                    }
+                }
+
+                $tableData[$i][$column] = $this->applyFilterToTd($datum[$column], $info);
+            }
         }
 
         return $tableData;
@@ -202,6 +217,7 @@ class TableData extends Table
      * Converte dados TD para uso no template table data
      * @param $value
      * @param array $fields
+     * @return array
      */
     private function applyFilterToTd($value, array $fields)
     {
@@ -216,8 +232,9 @@ class TableData extends Table
 
     /**
      * @param string $format
-     * @param string|null $relation
+     * @param $relation
      * @param $value
+     * @return string
      */
     private function getValueFrom(string $format, $relation, $value)
     {
@@ -282,7 +299,7 @@ class TableData extends Table
      */
     private function getSingleRelationValue(int $value, string $relation)
     {
-        if(!empty($relation) && !empty($value)) {
+        if (!empty($relation) && !empty($value)) {
             $dic = new Dicionario($relation);
             $relev = $dic->getRelevant();
             $read = new Read();
