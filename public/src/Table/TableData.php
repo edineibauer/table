@@ -177,7 +177,7 @@ class TableData extends Table
 
                                 $sql->exeCommand("SELECT a.{$belData['relevant']} FROM " . PRE . $belEntity . " as a JOIN " . PRE . $belEntity . "_" . $belData['column'] . " as r 
                                 ON r.{$belEntity}_id = a.id WHERE r." . parent::getEntity() . "_id = {$datum['id']}");
-                                if($sql->getResult()) {
+                                if ($sql->getResult()) {
                                     foreach ($sql->getResult() as $item)
                                         $datum[$belEntity] .= (!empty($datum[$belEntity]) ? "<br>" : "") . $item[$belData['relevant']];
                                 }
@@ -192,21 +192,23 @@ class TableData extends Table
             }
 
             /* Para cada Dado (TD), aplica os filtros necessários */
-            foreach ($fields as $column => $info) {
-                if(in_array($info['format'], ['list_mult', 'selecao_mult', 'extend_mult', 'checkbox_mult'])) {
-                    $datum[$column] = "";
-                    $dd = new Dicionario($info['relation']);
-                    $columnRelevation = $dd->getRelevant()->getColumn();
+            if (!empty($fields)) {
+                foreach ($fields as $column => $info) {
+                    if (in_array($info['format'], ['list_mult', 'selecao_mult', 'extend_mult', 'checkbox_mult'])) {
+                        $datum[$column] = "";
+                        $dd = new Dicionario($info['relation']);
+                        $columnRelevation = $dd->getRelevant()->getColumn();
 
-                    $sql->exeCommand("SELECT r.{$columnRelevation} FROM " . PRE . $info['relation'] . " as r JOIN " . PRE . parent::getEntity() . "_" . $column . " as s
-                    ON s." . $info['relation']. "_id = r.id WHERE s." . parent::getEntity() . "_id = {$datum['id']}");
-                    if($sql->getResult()){
-                        foreach ($sql->getResult() as $itemData)
-                            $datum[$column] .= (!empty($datum[$column]) ? "<br>" : "") . $itemData[$columnRelevation];
+                        $sql->exeCommand("SELECT r.{$columnRelevation} FROM " . PRE . $info['relation'] . " as r JOIN " . PRE . parent::getEntity() . "_" . $column . " as s
+                    ON s." . $info['relation'] . "_id = r.id WHERE s." . parent::getEntity() . "_id = {$datum['id']}");
+                        if ($sql->getResult()) {
+                            foreach ($sql->getResult() as $itemData)
+                                $datum[$column] .= (!empty($datum[$column]) ? "<br>" : "") . $itemData[$columnRelevation];
+                        }
                     }
-                }
 
-                $tableData[$i][$column] = $this->applyFilterToTd($datum[$column], $info);
+                    $tableData[$i][$column] = $this->applyFilterToTd($datum[$column], $info);
+                }
             }
         }
 
