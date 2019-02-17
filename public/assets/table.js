@@ -179,6 +179,10 @@ if (typeof tableNovo !== 'function') {
 $(function () {
     startTable();
 
+    $(".table-campo-geral").off("focus click").on("focus click", function () {
+        $(this).removeAttr("readonly");
+    });
+
     $(".table-all").off("change", ".switch-status-table").on("change", ".switch-status-table", function () {
         post("table", "update/status", {
             status: $(this).prop("checked"),
