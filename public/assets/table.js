@@ -179,7 +179,7 @@ if (typeof tableNovo !== 'function') {
 $(function () {
     startTable();
 
-    $(".table-campo-geral").off("focus click").on("focus click", function () {
+    $("#core-content").off("focus click", ".table-campo-geral").on("focus click", ".table-campo-geral", function () {
         $(this).removeAttr("readonly");
     });
 
