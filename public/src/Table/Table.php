@@ -214,6 +214,9 @@ class Table
     {
         $where = "WHERE id > 0";
 
+        if($_SESSION['userlogin']['setor'] <= ADM)
+            return $where;
+
         //filtro de tabela por owner
         if (!empty($d->getInfo()['publisher']) && $idP = $d->getInfo()['publisher']) {
             $metaOwner = $d->search($idP);
