@@ -181,6 +181,8 @@ $(function () {
 
     $("#core-content").off("focus click", ".table-campo-geral").on("focus click", ".table-campo-geral", function () {
         $(this).removeAttr("readonly");
+    }).off("blur", ".table-campo-geral").on("blur", ".table-campo-geral", function () {
+        $(this).attr("readonly", "readonly");
     });
 
     $(".table-all").off("change", ".switch-status-table").on("change", ".switch-status-table", function () {
