@@ -63,6 +63,6 @@
 
     <input type="hidden" class="table-pagina-{$entity}" value="1" data-entity="{$entity}" id="table-pagina-{$entity}"/>
 
-    <link rel="stylesheet" href="{$home}assetsPublic/tableCore.min.css">
-    <script src="{$home}assetsPublic/tableCore.min.js" defer></script>
+    <link rel="stylesheet" href="{$home}assetsPublic/tableCore.min.css?v={$version}">
+    <script src="{$home}assetsPublic/tableCore.min.js?v={$version}" defer></script>
 </div>
